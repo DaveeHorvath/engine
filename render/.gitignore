@@ -1,0 +1,5 @@
+.vscode
+.vscode/*
+obj/
+triangle
+shaders/*.spv
