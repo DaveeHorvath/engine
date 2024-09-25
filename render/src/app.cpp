@@ -15,8 +15,8 @@ void App::updateUniformBuffer(uint32_t currentImage)
 
     UniformBufferObject ubo{};
     ubo.model = glm::rotate(glm::mat4(1.0f), deltatime * glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-    ubo.view = glm::lookAt(glm::vec3(5.0f, 5.0f, 0.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-    ubo.proj = glm::perspective(glm::radians(90.0f), Swapchain::swapchainExtent.width / (float)Swapchain::swapchainExtent.height, 0.1f, 30.0f);
+    ubo.view = glm::lookAt(glm::vec3(8.0f, 8.0f, 0.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+    ubo.proj = glm::perspective(glm::radians(90.0f), Swapchain::swapchainExtent.width / (float)Swapchain::swapchainExtent.height, 0.1f, 60.0f);
     ubo.proj[1][1] *= -1;
     memcpy(uniformBuffersMapped[currentImage], &ubo, sizeof(ubo));
 }
@@ -264,7 +264,8 @@ void App::init()
 
     /* Vertex Buffer */
     std::cout << Logger::info << "Models init" << Logger::reset;
-    Model m;
+    Model m{"teapot.obj"};
+    models.push_back(m);
     models.push_back(m);
     for (auto& model : models)
         model.init();

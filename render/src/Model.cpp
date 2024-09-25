@@ -8,11 +8,13 @@
 
 #include "Vulkan.hpp"
 
+Model::Model(std::string model) : name(model) {}
+
 void Model::loadModel()
 {
     std::vector<Vertex> read_verticies;
     std::vector<int> read_indicies;
-    std::ifstream file{"teapot.obj"};
+    std::ifstream file{name};
     if (!file.is_open())
         throw std::runtime_error("Failed to open file");
     for (std::string line; std::getline(file, line);)

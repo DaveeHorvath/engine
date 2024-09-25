@@ -104,8 +104,8 @@ void RenderPipeline::recordCommandBuffer(VkCommandBuffer buffer, uint32_t image,
 	vkCmdBindDescriptorSets(buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 0, 1, &descriptorSets[currentFrame], 0, nullptr);
 
 	std::vector<glm::mat4> transforms{2};
-	transforms[0] = glm::translate(glm::mat4(1.0), glm::vec3(2.0f, 0.0f, 0.0f));
-	transforms[1] = glm::translate(glm::mat4(1.0), glm::vec3(-2.0f, 0.0f, 0.0f));
+	transforms[0] = glm::translate(glm::mat4(1.0), glm::vec3(0.0f, 0.0f, 3.0f));
+	transforms[1] = glm::translate(glm::mat4(1.0), glm::vec3(0.0f, 0.0f, -3.0f));
 	if (models.size() > transforms.size())
 		throw std::runtime_error("not enough transforms");
 	// can be moved to model
