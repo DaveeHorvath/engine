@@ -96,8 +96,7 @@ class App {
         // VkDeviceMemory depthImageMemory;
         // VkImageView depthImageView;
 
-        Model model;
-        Model second;
+        std::vector<Model> models;
 
         void updateUniformBuffer(uint32_t currentImage);
         void drawFrame();

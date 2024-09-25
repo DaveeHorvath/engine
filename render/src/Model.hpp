@@ -62,6 +62,7 @@ public:
     void makeVertexBuffer();
     void makeIndexBuffer();
     void init();
+    void render(VkCommandBuffer commandbuffer);
 };
 
 #endif

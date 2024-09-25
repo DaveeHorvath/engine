@@ -44,7 +44,7 @@ void App::drawFrame()
     vkResetCommandBuffer(renderpipeline.commandBuffers[currentFrame], 0);
 
     // maybe abstract away
-    renderpipeline.recordCommandBuffer(renderpipeline.commandBuffers[currentFrame], image, currentFrame, model.vertexBuffer, model.indexBuffer, model);
+    renderpipeline.recordCommandBuffer(renderpipeline.commandBuffers[currentFrame], image, currentFrame, models);
 
     VkPipelineStageFlags waitStages[] = {VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT};
 
@@ -263,8 +263,11 @@ void App::init()
     renderpipeline.makeCommandBuffer();
 
     /* Vertex Buffer */
-    std::cout << Logger::info << "Model creation" << Logger::reset;
-    model.init();
+    std::cout << Logger::info << "Models init" << Logger::reset;
+    Model m;
+    models.push_back(m);
+    for (auto& model : models)
+        model.init();
 
     std::cout << Logger::info << "Buffer initialization" << Logger::reset;
     makeUniformBuffers();

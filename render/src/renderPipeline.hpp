@@ -37,7 +37,7 @@ public:
 
     static VkCommandBuffer beginSingleTimeCommands();
     static void endSingleTimeCommands(VkCommandBuffer buffer);
-    void recordCommandBuffer(VkCommandBuffer buffer, uint32_t image, uint32_t currentFrame , Buffer vertexBuffer, Buffer indexBuffer, Model model);
+    void recordCommandBuffer(VkCommandBuffer buffer, uint32_t image, uint32_t currentFrame , std::vector<Model> models);
 
     void makeCommandPool();
     void makeCommandBuffer();
