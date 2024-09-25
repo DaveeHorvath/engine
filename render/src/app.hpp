@@ -75,15 +75,8 @@ class App {
         // std::vector<VkSemaphore> renderFinishedSemaphores;
         // std::vector<VkFence> inFlightFences;
 
-        /* should be a class*/
-        Buffer vertexBuffer;
-        // VkBuffer vertexBuffer;
-        // VkDeviceMemory vertexBufferMemory;
-        /* end of class */
-
-        Buffer indexBuffer;
-        // VkBuffer indexBuffer;
-        // VkDeviceMemory indexBufferMemory;
+        
+        //buffers moved to models
 
         std::vector<Buffer> uniformBuffers;
         std::vector<void *> uniformBuffersMapped;

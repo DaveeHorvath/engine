@@ -42,7 +42,9 @@ void App::drawFrame()
     vkResetFences(VulkanInstance::device, 1, &Syncobjects::inFlightFences[currentFrame]);
 
     vkResetCommandBuffer(renderpipeline.commandBuffers[currentFrame], 0);
-    renderpipeline.recordCommandBuffer(renderpipeline.commandBuffers[currentFrame], image, currentFrame, vertexBuffer, indexBuffer, model);
+
+    // maybe abstract away
+    renderpipeline.recordCommandBuffer(renderpipeline.commandBuffers[currentFrame], image, currentFrame, model.vertexBuffer, model.indexBuffer, model);
 
     VkPipelineStageFlags waitStages[] = {VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT};
 
@@ -81,54 +83,6 @@ void App::drawFrame()
         throw std::runtime_error("Failed to present next image");
 
     currentFrame = (currentFrame + 1) % MAX_FRAMES_IN_FLIGHT;
-}
-
-// fix this
-void App::makeIndexBuffer()
-{
-    VkDeviceSize deviceSize = sizeof(model.indices[0]) * model.indices.size();
-
-    VkBuffer stagingBuffer;
-    VkDeviceMemory stagingBufferMemory;
-
-    Buffer::makeBuffer(deviceSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory);
-
-    void *data;
-    vkMapMemory(instance.device, stagingBufferMemory, 0, deviceSize, 0, &data);
-    memcpy(data, model.indices.data(), (size_t)deviceSize);
-    vkUnmapMemory(instance.device, stagingBufferMemory);
-
-    Buffer::makeBuffer(deviceSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT,
-                       VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, indexBuffer.buffer, indexBuffer.bufferMemory);
-
-    Buffer::copyBuffer(stagingBuffer, indexBuffer.buffer, deviceSize);
-
-    vkDestroyBuffer(instance.device, stagingBuffer, nullptr);
-    vkFreeMemory(instance.device, stagingBufferMemory, nullptr);
-}
-
-// fix this
-void App::makeVertexBuffer()
-{
-    VkDeviceSize deviceSize = sizeof(model.vertices[0]) * model.vertices.size();
-
-    VkBuffer stagingBuffer;
-    VkDeviceMemory stagingBufferMemory;
-
-    Buffer::makeBuffer(deviceSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory);
-
-    void *data;
-    vkMapMemory(instance.device, stagingBufferMemory, 0, deviceSize, 0, &data);
-    memcpy(data, model.vertices.data(), (size_t)deviceSize);
-    vkUnmapMemory(instance.device, stagingBufferMemory);
-
-    Buffer::makeBuffer(deviceSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
-                       VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, vertexBuffer.buffer, vertexBuffer.bufferMemory);
-
-    Buffer::copyBuffer(stagingBuffer, vertexBuffer.buffer, deviceSize);
-
-    vkDestroyBuffer(instance.device, stagingBuffer, nullptr);
-    vkFreeMemory(instance.device, stagingBufferMemory, nullptr);
 }
 
 void App::makeUniformBuffers()
@@ -310,11 +264,9 @@ void App::init()
 
     /* Vertex Buffer */
     std::cout << Logger::info << "Model creation" << Logger::reset;
-    model.loadModel();
+    model.init();
 
     std::cout << Logger::info << "Buffer initialization" << Logger::reset;
-    makeVertexBuffer();
-    makeIndexBuffer();
     makeUniformBuffers();
     renderpipeline.makeDescriptorPool();
     renderpipeline.makeDescriptorSets(uniformBuffers, texture);

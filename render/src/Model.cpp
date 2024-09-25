@@ -3,8 +3,10 @@
 #include <stdexcept>
 #include <string>
 #include <sstream>
-
 #include <iostream>
+#include <string.h>
+
+#include "Vulkan.hpp"
 
 void Model::loadModel()
 {
@@ -50,4 +52,56 @@ void Model::loadModel()
         indices.push_back(indices.size());
         vertices.push_back(read_verticies[i - 1]);
     }
+}
+
+void Model::makeVertexBuffer()
+{
+    VkDeviceSize deviceSize = sizeof(vertices[0]) * vertices.size();
+
+    VkBuffer stagingBuffer;
+    VkDeviceMemory stagingBufferMemory;
+
+    Buffer::makeBuffer(deviceSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory);
+
+    void *data;
+    vkMapMemory(VulkanInstance::device, stagingBufferMemory, 0, deviceSize, 0, &data);
+    memcpy(data, vertices.data(), (size_t)deviceSize);
+    vkUnmapMemory(VulkanInstance::device, stagingBufferMemory);
+
+    Buffer::makeBuffer(deviceSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, vertexBuffer.buffer, vertexBuffer.bufferMemory);
+
+    Buffer::copyBuffer(stagingBuffer, vertexBuffer.buffer, deviceSize);
+
+    vkDestroyBuffer(VulkanInstance::device, stagingBuffer, nullptr);
+    vkFreeMemory(VulkanInstance::device, stagingBufferMemory, nullptr);
+}
+
+// fix this
+void Model::makeIndexBuffer()
+{
+    VkDeviceSize deviceSize = sizeof(indices[0]) * indices.size();
+
+    VkBuffer stagingBuffer;
+    VkDeviceMemory stagingBufferMemory;
+
+    Buffer::makeBuffer(deviceSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory);
+
+    void *data;
+    vkMapMemory(VulkanInstance::device, stagingBufferMemory, 0, deviceSize, 0, &data);
+    memcpy(data, indices.data(), (size_t)deviceSize);
+    vkUnmapMemory(VulkanInstance::device, stagingBufferMemory);
+
+    Buffer::makeBuffer(deviceSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, indexBuffer.buffer, indexBuffer.bufferMemory);
+
+    Buffer::copyBuffer(stagingBuffer, indexBuffer.buffer, deviceSize);
+
+    vkDestroyBuffer(VulkanInstance::device, stagingBuffer, nullptr);
+    vkFreeMemory(VulkanInstance::device, stagingBufferMemory, nullptr);
+}
+
+void Model::init()
+{
+    loadModel();
+    makeVertexBuffer();
+    makeIndexBuffer();
 }

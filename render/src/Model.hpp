@@ -12,6 +12,8 @@
 #include <array>
 #include <vector>
 
+#include "buffer.hpp"
+
 struct Vertex
 {
     glm::vec3 pos;
@@ -54,7 +56,12 @@ class Model
 public:
     std::vector<Vertex> vertices;
     std::vector<uint32_t> indices;
+    Buffer vertexBuffer;
+    Buffer indexBuffer;
     void loadModel();
+    void makeVertexBuffer();
+    void makeIndexBuffer();
+    void init();
 };
 
 #endif
