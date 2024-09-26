@@ -1,6 +1,7 @@
 NAME=engine
 CXX=c++
-LIBS=/home/dhorvath/.libs
+LIBS=/home/kali/.libs
+LIBS=/home/kali/.libs
 CXXFLAGS= -std=c++17 -Ofast -DDEBUG -g -I$(LIBS)/stb
 LDFLAGS = -lglfw -lvulkan -ldl -lpthread -lX11 -lXxf86vm -lXrandr -lXi
 
