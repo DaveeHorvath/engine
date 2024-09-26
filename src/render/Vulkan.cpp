@@ -3,9 +3,17 @@
 #include <cstring>
 #include <set>
 #include "QueueFamilyIndicies.hpp"
-#include "renderPipeline.hpp"
-#include "window.hpp"
+#include "RenderPipeline.hpp"
+#include "Window.hpp"
 #include "Logger.hpp"
+
+VulkanInstance::VulkanInstance()
+{
+    init();
+    createSurface();
+    pickPhysicalDevice();
+    makeLogicalDevice();
+}
 
 bool VulkanInstance::check_validation_layer_support()
 {
@@ -33,10 +41,8 @@ bool VulkanInstance::check_validation_layer_support()
 void VulkanInstance::init()
 {
     std::cout << Logger::debug << "Vulkan engine: made by @dhorvath" << Logger::reset;
-    /* Validation layer */
     if (enableValidationLayers && !check_validation_layer_support())
         throw std::runtime_error("Failed to init validation layers");
-    /* vulkan instance*/
     VkApplicationInfo appInfo{};
     appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
     appInfo.apiVersion = VK_API_VERSION_1_0;
@@ -75,12 +81,16 @@ void VulkanInstance::init()
     {
         std::vector<VkExtensionProperties> extensions(extensionCount);
         vkEnumerateInstanceExtensionProperties(nullptr, &extensionCount, extensions.data());
-        // std::cout << "Availiable Extensions: \n";
-        // for (auto &ext : extensions)
-        //     std::cout << "\t" << ext.extensionName << "\n";
+        if (false)
+        {
+            std::cout << "Availiable Extensions: \n";
+            for (auto &ext : extensions)
+                std::cout << "\t" << ext.extensionName << "\n";
+        }
     }
 }
 
+/* needs to make a score of the devices */
 void VulkanInstance::pickPhysicalDevice()
 {
     uint32_t deviceCount = 0;

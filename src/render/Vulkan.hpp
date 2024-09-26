@@ -19,6 +19,7 @@ private:
 
     VkInstance instance;
 public:
+    VulkanInstance();
     inline static VkPhysicalDevice physicalDevice;
     inline static VkDevice device;
     inline static VkSurfaceKHR surface;

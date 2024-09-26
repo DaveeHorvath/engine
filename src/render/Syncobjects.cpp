@@ -1,4 +1,4 @@
-#include "syncobjects.hpp"
+#include "Syncobjects.hpp"
 #include "Vulkan.hpp"
 
 void Syncobjects::makeSyncObjects()

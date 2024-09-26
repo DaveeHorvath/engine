@@ -1,4 +1,4 @@
-#include "app.hpp"
+#include "App.hpp"
 #include <chrono>
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
@@ -232,22 +232,12 @@ void App::run()
     clean();
 }
 
+// order of member variables indicated here as logs
 void App::init()
 {
     std::cout << Logger::info << "Engine started" << Logger::reset;
-    window.init();
-    instance.init();
-
-    /* Surface*/
-    instance.createSurface();
-
-    /* device selection and creation */
-    instance.pickPhysicalDevice();
-    instance.makeLogicalDevice();
 
     std::cout << Logger::info << "Swapchain created" << Logger::reset;
-    /* SwapChain */
-    swapchain.makeSwapchain();
 
     /* pipeline */
     std::cout << Logger::info << "Renderpipeline" << Logger::reset;

@@ -1,12 +1,17 @@
-#include "swapchain.hpp"
+#include "Swapchain.hpp"
 #include "QueueFamilyIndicies.hpp"
 #include "Vulkan.hpp"
-#include "window.hpp"
+#include "Window.hpp"
 #include <iostream>
 
 VkSurfaceFormatKHR pickSurfaceFormat(const std::vector<VkSurfaceFormatKHR> formats);
 VkPresentModeKHR pickSwapPresentMode(const std::vector<VkPresentModeKHR>& availablePresentModes);
 VkExtent2D pickSwapChainExtent(const VkSurfaceCapabilitiesKHR& capabilities);
+
+Swapchain::Swapchain()
+{
+    makeSwapchain();
+}
 
 void Swapchain::makeSwapchain()
 {

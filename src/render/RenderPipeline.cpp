@@ -1,4 +1,4 @@
-#include "renderPipeline.hpp"
+#include "RenderPipeline.hpp"
 #include <string>
 #include <fstream>
 #include <array>
@@ -6,10 +6,10 @@
 #include "QueueFamilyIndicies.hpp"
 #include "UniformBufferObject.hpp"
 #include "Model.hpp"
-#include "buffer.hpp"
+#include "Buffer.hpp"
 #include "Vulkan.hpp"
-#include "swapchain.hpp"
-#include "image.hpp"
+#include "Swapchain.hpp"
+#include "Image.hpp"
 
 static std::vector<char> readShader(const std::string &filename)
 {

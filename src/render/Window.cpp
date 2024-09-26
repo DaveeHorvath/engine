@@ -1,6 +1,12 @@
-#include "window.hpp"
+#include "Window.hpp"
 #include <iostream>
-#include "app.hpp"
+#include "App.hpp"
+
+Window::Window()
+{
+    init();
+}
+
 void Window::init()
 {
     glfwInit();

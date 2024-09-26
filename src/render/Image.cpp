@@ -1,7 +1,7 @@
-#include "image.hpp"
-#include "renderPipeline.hpp"
+#include "Image.hpp"
+#include "RenderPipeline.hpp"
 #include "Vulkan.hpp"
-#include "app.hpp"
+#include "App.hpp"
 
 void Image::makeImage(uint32_t width, uint32_t height, VkImageTiling tiling, VkImageUsageFlags usage)
 {

@@ -12,7 +12,7 @@
 #include <array>
 #include <vector>
 
-#include "buffer.hpp"
+#include "Buffer.hpp"
 
 struct Vertex
 {

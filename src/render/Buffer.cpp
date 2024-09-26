@@ -1,8 +1,8 @@
-#include "buffer.hpp"
+#include "Buffer.hpp"
 #include <cstring>
-#include "renderPipeline.hpp"
+#include "RenderPipeline.hpp"
 #include "Vulkan.hpp"
-#include "app.hpp"
+#include "App.hpp"
 
 void Buffer::makeBuffer(VkDeviceSize tmpsize, VkBufferUsageFlags usage, VkMemoryPropertyFlags props, VkBuffer &tmpbuffer, VkDeviceMemory &tmpbufferMemory)
 {
