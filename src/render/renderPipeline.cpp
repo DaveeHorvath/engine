@@ -60,7 +60,7 @@ void RenderPipeline::endSingleTimeCommands(VkCommandBuffer buffer)
 	vkFreeCommandBuffers(VulkanInstance::device, commandPool, 1, &buffer);
 }
 
-void RenderPipeline::recordCommandBuffer(VkCommandBuffer buffer, uint32_t image, uint32_t currentFrame, Buffer vertexBuffer, Buffer indexBuffer, Model model)
+void RenderPipeline::recordCommandBuffer(VkCommandBuffer buffer, uint32_t image, uint32_t currentFrame, std::vector<Model> models)
 {
 	VkCommandBufferBeginInfo commandBufferBeginInfo{};
 	commandBufferBeginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
@@ -101,13 +101,20 @@ void RenderPipeline::recordCommandBuffer(VkCommandBuffer buffer, uint32_t image,
 	scissor.extent = Swapchain::swapchainExtent;
 	vkCmdSetScissor(buffer, 0, 1, &scissor);
 
-	VkBuffer vertexBuffers[] = {vertexBuffer.buffer};
-	VkDeviceSize offsets[] = {0};
-	vkCmdBindVertexBuffers(buffer, 0, 1, vertexBuffers, offsets);
-	vkCmdBindIndexBuffer(buffer, indexBuffer.buffer, 0, VK_INDEX_TYPE_UINT32);
-
 	vkCmdBindDescriptorSets(buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 0, 1, &descriptorSets[currentFrame], 0, nullptr);
-	vkCmdDrawIndexed(buffer, static_cast<uint32_t>(model.indices.size()), 1, 0, 0, 0);
+
+	std::vector<glm::mat4> transforms{2};
+	transforms[0] = glm::translate(glm::mat4(1.0), glm::vec3(0.0f, 0.0f, 3.0f));
+	transforms[1] = glm::translate(glm::mat4(1.0), glm::vec3(0.0f, 0.0f, -3.0f));
+	if (models.size() > transforms.size())
+		throw std::runtime_error("not enough transforms");
+	// can be moved to model
+	for (int i = 0; i < models.size(); i++)
+	{
+		vkCmdPushConstants(buffer, pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(glm::mat4), &transforms[i]);
+		models[i].render(buffer);
+	}
+
 
 	vkCmdEndRenderPass(buffer);
 	if (vkEndCommandBuffer(buffer) != VK_SUCCESS)
@@ -293,8 +300,8 @@ void RenderPipeline::makeRenderPass(Image depthImage)
 
 void RenderPipeline::makePipeline()
 {
-	std::vector<char> vertexShader = readShader("shaders/vert.spv");
-	std::vector<char> fragmentShader = readShader("shaders/frag.spv");
+	std::vector<char> vertexShader = readShader("resources/shaders/vert.spv");
+	std::vector<char> fragmentShader = readShader("resources/shaders/frag.spv");
 
 	VkShaderModule vertexShaderModule = makeShaderModule(vertexShader);
 	VkShaderModule fragmentShaderModule = makeShaderModule(fragmentShader);
@@ -381,10 +388,17 @@ void RenderPipeline::makePipeline()
 	pipelineColorBlendStateCreateInfo.attachmentCount = 1;
 	pipelineColorBlendStateCreateInfo.pAttachments = &pipelineColorBlendAttachmentState;
 
+	VkPushConstantRange pushConstantRange{};
+	pushConstantRange.offset = 0;
+	pushConstantRange.size = sizeof(glm::mat4);
+	pushConstantRange.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
+
 	VkPipelineLayoutCreateInfo pipelineLayoutCreateInfo{};
 	pipelineLayoutCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
 	pipelineLayoutCreateInfo.setLayoutCount = 1;
 	pipelineLayoutCreateInfo.pSetLayouts = &descriptorSetLayout;
+	pipelineLayoutCreateInfo.pushConstantRangeCount = 1;
+	pipelineLayoutCreateInfo.pPushConstantRanges = &pushConstantRange;
 
 	if (vkCreatePipelineLayout(VulkanInstance::device, &pipelineLayoutCreateInfo, nullptr, &pipelineLayout) != VK_SUCCESS)
 		throw std::runtime_error("Failed to create pipeline layout");
