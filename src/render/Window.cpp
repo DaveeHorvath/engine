@@ -7,6 +7,12 @@ Window::Window()
     init();
 }
 
+Window::~Window()
+{
+    glfwDestroyWindow(win);
+    glfwTerminate();
+}
+
 void Window::init()
 {
     glfwInit();

@@ -20,6 +20,7 @@ private:
     VkShaderModule makeShaderModule(const std::vector<char>& shader);
 public:
     RenderPipeline(Image depth);
+    ~RenderPipeline();
     VkRenderPass renderPass;
     VkDescriptorSetLayout descriptorSetLayout;
     VkPipelineLayout pipelineLayout;

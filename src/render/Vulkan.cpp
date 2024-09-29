@@ -15,6 +15,13 @@ VulkanInstance::VulkanInstance()
     makeLogicalDevice();
 }
 
+VulkanInstance::~VulkanInstance()
+{
+    vkDestroyDevice(VulkanInstance::device, nullptr);
+    vkDestroySurfaceKHR(instance, surface, nullptr);
+    vkDestroyInstance(instance, nullptr);
+}
+
 bool VulkanInstance::check_validation_layer_support()
 {
     uint32_t layerCount = 0;

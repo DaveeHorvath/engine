@@ -11,10 +11,11 @@
 class Syncobjects {
 private:
 public:
+    Syncobjects();
+    ~Syncobjects();
     inline static std::vector<VkSemaphore> imageDoneSemaphores;
     inline static std::vector<VkSemaphore> renderFinishedSemaphores;
     inline static std::vector<VkFence> inFlightFences;
-    Syncobjects();
     void makeSyncObjects();
 };
 

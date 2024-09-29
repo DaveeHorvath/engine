@@ -13,6 +13,13 @@ Swapchain::Swapchain()
     makeSwapchain();
 }
 
+Swapchain::~Swapchain()
+{
+    for (auto& imview : swapchainImagesViews)
+        vkDestroyImageView(VulkanInstance::device, imview, nullptr);
+    vkDestroySwapchainKHR(VulkanInstance::device, swapchain, nullptr);
+}
+
 void Swapchain::makeSwapchain()
 {
     SwapChainSupportDetails details = findSwapChainSupportDetails();

@@ -97,6 +97,8 @@ void App::makeUniformBuffers()
         Buffer::makeBuffer(bufferSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, uniformBuffers[i].buffer, uniformBuffers[i].bufferMemory);
         vkMapMemory(instance->device, uniformBuffers[i].bufferMemory, 0, bufferSize, 0, &uniformBuffersMapped[i]);
     }
+
+    renderpipeline->makeDescriptorSets(uniformBuffers, texture);
 }
 
 // fix this
@@ -171,36 +173,19 @@ void App::clean()
     // vkDestroyImage(VulkanInstance::device, textureImage, nullptr);
     // vkFreeMemory(VulkanInstance::device, textureImageMemory, nullptr);
 
-    // vkDestroyDescriptorPool(VulkanInstance::device, descriptorPool, nullptr);
-    // vkDestroyDescriptorSetLayout(VulkanInstance::device, descriptorSetLayout, nullptr);
-
     // vkDestroyBuffer(VulkanInstance::device, vertexBuffer, nullptr);
     // vkFreeMemory(VulkanInstance::device, vertexBufferMemory, nullptr);
 
     // vkDestroyBuffer(VulkanInstance::device, indexBuffer, nullptr);
     // vkFreeMemory(VulkanInstance::device, indexBufferMemory, nullptr);
 
-    // for (int i = 0; i < MAX_FRAMES_IN_FLIGHT; i++)
-    // {
-    //     vkDestroyFence(VulkanInstance::device, inFlightFences[i], nullptr);
-    //     vkDestroySemaphore(VulkanInstance::device, imageDoneSemaphores[i], nullptr);
-    //     vkDestroySemaphore(VulkanInstance::device, renderFinishedSemaphores[i], nullptr);
-    // }
+    renderpipeline.release();
+    
+    syncobjects.release();
 
-    // vkDestroyCommandPool(VulkanInstance::device, commandPool, nullptr);
-    // for (auto &buffer : swapchainFramebuffers)
-    //     vkDestroyFramebuffer(VulkanInstance::device, buffer, nullptr);
-    // vkDestroyPipeline(VulkanInstance::device, graphicsPipeline, nullptr);
-    // vkDestroyPipelineLayout(VulkanInstance::device, pipelineLayout, nullptr);
-    // vkDestroyRenderPass(VulkanInstance::device, renderPass, nullptr);
-    // for (auto &imageView : swapchainImagesViews)
-    //     vkDestroyImageView(VulkanInstance::device, imageView, nullptr);
-    // vkDestroySwapchainKHR(VulkanInstance::device, swapchain, nullptr);
-    // vkDestroyDevice(VulkanInstance::device, nullptr);
-    // vkDestroySurfaceKHR(instance, surface, nullptr);
-    // vkDestroyInstance(instance, nullptr);
-    glfwDestroyWindow(window->win);
-    glfwTerminate();
+    instance.release();
+
+    window.release();
 }
 
 void App::copyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width, uint32_t height)
@@ -242,10 +227,9 @@ void App::init()
     std::cout << Logger::info << "Swapchain created" << Logger::reset;
     swapchain = std::make_unique<Swapchain>();
     /* pipeline */
+    makeDepthResources();
     std::cout << Logger::info << "Renderpipeline" << Logger::reset;
     renderpipeline = std::make_unique<RenderPipeline>(depth);
-    makeDepthResources();
-    renderpipeline->makeFrameBuffer(depth);
     makeTextureImage();
     texture.makeImageView(VK_IMAGE_ASPECT_COLOR_BIT);
     texture.makeImageSampler();
@@ -260,8 +244,6 @@ void App::init()
 
     std::cout << Logger::info << "Buffer initialization" << Logger::reset;
     makeUniformBuffers();
-    renderpipeline->makeDescriptorPool();
-    renderpipeline->makeDescriptorSets(uniformBuffers, texture);
 
     /* Sync */
     syncobjects = std::make_unique<Syncobjects>();

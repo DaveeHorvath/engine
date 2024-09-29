@@ -6,6 +6,16 @@ Syncobjects::Syncobjects()
     makeSyncObjects();
 }
 
+Syncobjects::~Syncobjects()
+{
+    for (int i = 0; i < MAX_FRAMES_IN_FLIGHT; i++)
+    {
+        vkDestroyFence(VulkanInstance::device, inFlightFences[i], nullptr);
+        vkDestroySemaphore(VulkanInstance::device, imageDoneSemaphores[i], nullptr);
+        vkDestroySemaphore(VulkanInstance::device, renderFinishedSemaphores[i], nullptr);
+    }
+}
+
 void Syncobjects::makeSyncObjects()
 {
     imageDoneSemaphores.resize(MAX_FRAMES_IN_FLIGHT);

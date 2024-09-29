@@ -18,6 +18,21 @@ RenderPipeline::RenderPipeline(Image depth)
 	makePipeline();
 	makeCommandPool();
 	makeCommandBuffer();
+	makeFrameBuffer(depth);
+	makeDescriptorPool();
+}
+
+RenderPipeline::~RenderPipeline()
+{
+	vkDestroyDescriptorPool(VulkanInstance::device, descriptorPool, nullptr);
+    vkDestroyDescriptorSetLayout(VulkanInstance::device, descriptorSetLayout, nullptr);
+	for (auto &buffer : swapchainFramebuffers)
+        vkDestroyFramebuffer(VulkanInstance::device, buffer, nullptr);
+	// CommandBuffers?
+	vkDestroyCommandPool(VulkanInstance::device, commandPool, nullptr);
+	vkDestroyPipeline(VulkanInstance::device, graphicsPipeline, nullptr);
+	vkDestroyPipelineLayout(VulkanInstance::device, pipelineLayout, nullptr);
+    vkDestroyRenderPass(VulkanInstance::device, renderPass, nullptr);
 }
 
 static std::vector<char> readShader(const std::string &filename)
