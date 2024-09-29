@@ -11,6 +11,15 @@
 #include "Swapchain.hpp"
 #include "Image.hpp"
 
+RenderPipeline::RenderPipeline(Image depth)
+{
+	makeRenderPass(depth);
+	makeDescriptorSetLayout();
+	makePipeline();
+	makeCommandPool();
+	makeCommandBuffer();
+}
+
 static std::vector<char> readShader(const std::string &filename)
 {
 	std::ifstream file(filename, std::ios::ate | std::ios::binary);

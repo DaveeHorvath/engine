@@ -29,9 +29,9 @@ void App::drawFrame()
 
     if (res == VK_ERROR_OUT_OF_DATE_KHR)
     {
-        swapchain.remakeSwapchain();
+        swapchain->remakeSwapchain();
         makeDepthResources();
-        renderpipeline.makeFrameBuffer(depth);
+        renderpipeline->makeFrameBuffer(depth);
         return;
     }
     else if (res != VK_SUCCESS && res != VK_SUBOPTIMAL_KHR)
@@ -41,42 +41,42 @@ void App::drawFrame()
 
     vkResetFences(VulkanInstance::device, 1, &Syncobjects::inFlightFences[currentFrame]);
 
-    vkResetCommandBuffer(renderpipeline.commandBuffers[currentFrame], 0);
+    vkResetCommandBuffer(renderpipeline->commandBuffers[currentFrame], 0);
 
     // maybe abstract away
-    renderpipeline.recordCommandBuffer(renderpipeline.commandBuffers[currentFrame], image, currentFrame, models);
+    renderpipeline->recordCommandBuffer(renderpipeline->commandBuffers[currentFrame], image, currentFrame, models);
 
     VkPipelineStageFlags waitStages[] = {VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT};
 
     VkSubmitInfo submitInfo{};
     submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
     submitInfo.commandBufferCount = 1;
-    submitInfo.pCommandBuffers = &renderpipeline.commandBuffers[currentFrame];
+    submitInfo.pCommandBuffers = &renderpipeline->commandBuffers[currentFrame];
     submitInfo.signalSemaphoreCount = 1;
-    submitInfo.pSignalSemaphores = &syncobjects.renderFinishedSemaphores[currentFrame];
+    submitInfo.pSignalSemaphores = &syncobjects->renderFinishedSemaphores[currentFrame];
     submitInfo.waitSemaphoreCount = 1;
-    submitInfo.pWaitSemaphores = &syncobjects.imageDoneSemaphores[currentFrame];
+    submitInfo.pWaitSemaphores = &syncobjects->imageDoneSemaphores[currentFrame];
     submitInfo.pWaitDstStageMask = waitStages;
 
-    if (vkQueueSubmit(RenderPipeline::graphicsQueue, 1, &submitInfo, syncobjects.inFlightFences[currentFrame]) != VK_SUCCESS)
+    if (vkQueueSubmit(RenderPipeline::graphicsQueue, 1, &submitInfo, syncobjects->inFlightFences[currentFrame]) != VK_SUCCESS)
         throw std::runtime_error("Failed to submit to queue");
 
     VkPresentInfoKHR presentInfo{};
     presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
     presentInfo.swapchainCount = 1;
-    presentInfo.pSwapchains = &swapchain.swapchain;
+    presentInfo.pSwapchains = &swapchain->swapchain;
     presentInfo.pImageIndices = &image;
     presentInfo.waitSemaphoreCount = 1;
-    presentInfo.pWaitSemaphores = &syncobjects.renderFinishedSemaphores[currentFrame];
+    presentInfo.pWaitSemaphores = &syncobjects->renderFinishedSemaphores[currentFrame];
 
     res = vkQueuePresentKHR(RenderPipeline::graphicsQueue, &presentInfo);
 
     if (res == VK_ERROR_OUT_OF_DATE_KHR || res == VK_SUBOPTIMAL_KHR || frameResize)
     {
         frameResize = false;
-        swapchain.remakeSwapchain();
+        swapchain->remakeSwapchain();
         makeDepthResources();
-        renderpipeline.makeFrameBuffer(depth);
+        renderpipeline->makeFrameBuffer(depth);
         return;
     }
     else if (res != VK_SUCCESS)
@@ -95,7 +95,7 @@ void App::makeUniformBuffers()
     for (int i = 0; i < MAX_FRAMES_IN_FLIGHT; i++)
     {
         Buffer::makeBuffer(bufferSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, uniformBuffers[i].buffer, uniformBuffers[i].bufferMemory);
-        vkMapMemory(instance.device, uniformBuffers[i].bufferMemory, 0, bufferSize, 0, &uniformBuffersMapped[i]);
+        vkMapMemory(instance->device, uniformBuffers[i].bufferMemory, 0, bufferSize, 0, &uniformBuffersMapped[i]);
     }
 }
 
@@ -122,9 +122,9 @@ void App::makeTextureImage()
 
     texture.makeImage(texWidth, texHeight, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT);
 
-    texture.transitionImageLayout(renderpipeline, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL); // specify correct layout for transfers
+    texture.transitionImageLayout(*renderpipeline, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL); // specify correct layout for transfers
     copyBufferToImage(stagingBuffer, texture.image, texWidth, texHeight);
-    texture.transitionImageLayout(renderpipeline, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL); // specify correct layout for shaders
+    texture.transitionImageLayout(*renderpipeline, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL); // specify correct layout for shaders
 
     vkDestroyBuffer(VulkanInstance::device, stagingBuffer, nullptr);
     vkFreeMemory(VulkanInstance::device, stagingBufferMemory, nullptr);
@@ -133,7 +133,7 @@ void App::makeTextureImage()
 // fix this
 void App::makeDepthResources()
 {
-    depth.makeImage(swapchain.swapchainExtent.width, swapchain.swapchainExtent.height, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT);
+    depth.makeImage(swapchain->swapchainExtent.width, swapchain->swapchainExtent.height, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT);
     depth.makeImageView(VK_IMAGE_ASPECT_DEPTH_BIT);
 }
 
@@ -199,7 +199,7 @@ void App::clean()
     // vkDestroyDevice(VulkanInstance::device, nullptr);
     // vkDestroySurfaceKHR(instance, surface, nullptr);
     // vkDestroyInstance(instance, nullptr);
-    glfwDestroyWindow(window.win);
+    glfwDestroyWindow(window->win);
     glfwTerminate();
 }
 
@@ -236,21 +236,19 @@ void App::run()
 void App::init()
 {
     std::cout << Logger::info << "Engine started" << Logger::reset;
+    window = std::make_unique<Window>();
+    instance = std::make_unique<VulkanInstance>();
 
     std::cout << Logger::info << "Swapchain created" << Logger::reset;
-
+    swapchain = std::make_unique<Swapchain>();
     /* pipeline */
     std::cout << Logger::info << "Renderpipeline" << Logger::reset;
-    renderpipeline.makeRenderPass(depth);
-    renderpipeline.makeDescriptorSetLayout();
-    renderpipeline.makePipeline();
-    renderpipeline.makeCommandPool();
+    renderpipeline = std::make_unique<RenderPipeline>(depth);
     makeDepthResources();
-    renderpipeline.makeFrameBuffer(depth);
+    renderpipeline->makeFrameBuffer(depth);
     makeTextureImage();
     texture.makeImageView(VK_IMAGE_ASPECT_COLOR_BIT);
     texture.makeImageSampler();
-    renderpipeline.makeCommandBuffer();
 
     /* Vertex Buffer */
     std::cout << Logger::info << "Models init" << Logger::reset;
@@ -262,9 +260,9 @@ void App::init()
 
     std::cout << Logger::info << "Buffer initialization" << Logger::reset;
     makeUniformBuffers();
-    renderpipeline.makeDescriptorPool();
-    renderpipeline.makeDescriptorSets(uniformBuffers, texture);
+    renderpipeline->makeDescriptorPool();
+    renderpipeline->makeDescriptorSets(uniformBuffers, texture);
 
     /* Sync */
-    syncobjects.makeSyncObjects();
+    syncobjects = std::make_unique<Syncobjects>();
 }

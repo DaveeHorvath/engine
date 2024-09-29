@@ -34,7 +34,7 @@ inline static uint32_t findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags
 #include "Model.hpp"
 
 #define MAX_FRAMES_IN_FLIGHT 2
-
+#include <memory>
 
 class App {
     public:
@@ -42,18 +42,18 @@ class App {
         bool frameResize = false;
         void run();
     private:
-        Window window;
+        std::unique_ptr<Window> window;
 
-        VulkanInstance instance;
+        std::unique_ptr<VulkanInstance> instance;
 
-        Swapchain swapchain;
+        std::unique_ptr<Swapchain> swapchain;
         
         Image texture{VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT};
         Image depth{VK_FORMAT_UNDEFINED, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT};
 
-        RenderPipeline renderpipeline;
+        std::unique_ptr<RenderPipeline> renderpipeline;
 
-        Syncobjects syncobjects;
+        std::unique_ptr<Syncobjects> syncobjects;
         
         std::vector<Buffer> uniformBuffers;
         std::vector<void *> uniformBuffersMapped;

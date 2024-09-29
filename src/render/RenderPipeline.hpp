@@ -19,6 +19,7 @@ class RenderPipeline {
 private:
     VkShaderModule makeShaderModule(const std::vector<char>& shader);
 public:
+    RenderPipeline(Image depth);
     VkRenderPass renderPass;
     VkDescriptorSetLayout descriptorSetLayout;
     VkPipelineLayout pipelineLayout;
