@@ -1,6 +1,11 @@
 #include "Syncobjects.hpp"
 #include "Vulkan.hpp"
 
+Syncobjects::Syncobjects()
+{
+    makeSyncObjects();
+}
+
 void Syncobjects::makeSyncObjects()
 {
     imageDoneSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
