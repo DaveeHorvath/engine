@@ -8,6 +8,7 @@
 #define HEIGHT 1200
 
 static void framebufferResizeCallback(GLFWwindow * win, int height, int width);
+static void keyboardCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
 
 class Window {
 public:
