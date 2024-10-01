@@ -20,9 +20,6 @@ public:
     using component_type = std::type_index;
     using component_id = uint32_t;
 
-    using system = void (*)();
-    using system_type = char;
-
     using entity = std::vector<component_id>;
     using entity_id = uint32_t;
     using component = std::variant<cmps...>;
@@ -63,7 +60,7 @@ public:
         res.reserve(ids.size());
         std::for_each(ids.begin(), ids.end(),
                     [&](component_id &id)
-                    { res.push_back(std::get<cp>(_components[id])); });
+                    { res.emplace_back(std::get<cp>(_components[id])); });
         return res;
     }
     template <typename cp>
@@ -95,25 +92,6 @@ public:
         _registry[std::type_index(typeid(c))].push_back(tmp);
         return comp_id;
     }
-    void addSystem(system sys, system_type sys_type)
-    {
-        if (sys_type == SYSTEM_STARTUP)
-            startup_systems.push_back(sys);
-        else if (sys_type == SYSTEM_UPDATE)
-            update_systems.push_back(sys);
-        else
-            std::cerr << "Invalid system type\n";
-    }
-    std::vector<system> getSystem(system_type type)
-    {
-        if (type == SYSTEM_STARTUP)
-            return startup_systems;
-        else if (type == SYSTEM_UPDATE)
-            return update_systems;
-        else
-            std::cerr << "Invalid system type\n";
-        return update_systems;
-    }
 
     entity_id addEntity()
     {
@@ -126,9 +104,6 @@ private:
     std::unordered_map<component_type, std::vector<std::pair<component_id, entity_id>>> _registry;
     std::unordered_map<component_id, component> _components;
     std::unordered_map<entity_id, entity> _entities;
-
-    std::vector<system> startup_systems;
-    std::vector<system> update_systems;
 };
 
 #endif
