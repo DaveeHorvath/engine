@@ -44,6 +44,7 @@ public:
             ids[i] = fitting[i].second;
         return ids;
     }
+
     template <typename cp>
     std::vector<component_id> getComponentIds()
     {
@@ -113,6 +114,6 @@ private:
 };
 
 // ADD ALL COMPONENTS HERE
-extern Registry<Transform> g_reg;
+extern Registry<Transform, Renderable> g_reg;
 
 #endif

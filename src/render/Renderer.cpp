@@ -5,8 +5,8 @@
 #include <iostream>
 #include <stdexcept>
 #include "Logger.hpp"
+#include "Register.hpp"
 
-// gets changed rn
 void Renderer::updateUniformBuffer(uint32_t currentImage)
 {
     UniformBufferObject ubo{};
@@ -222,11 +222,12 @@ void Renderer::init()
 
     /* Vertex Buffer */
     std::cout << Logger::info << "Models init" << Logger::reset;
-    Model m{"resources/teapot.obj"};
-    models.push_back(m);
-    models.push_back(m);
-    for (auto& model : models)
-        model.init();
+    std::vector<Renderable*> r = g_reg.getComponents<Renderable>();
+    for (auto& obj : r)
+    {
+        models.emplace_back(obj->model_name);
+        models.back().init();
+    }
 
     std::cout << Logger::info << "Buffer initialization" << Logger::reset;
     makeUniformBuffers();
