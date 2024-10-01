@@ -36,11 +36,13 @@ inline static uint32_t findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags
 #define MAX_FRAMES_IN_FLIGHT 2
 #include <memory>
 
-class App {
+class Renderer {
     public:
         uint32_t currentFrame = 0;
         bool frameResize = false;
-        void run();
+        void init();
+        void clean();
+        void drawFrame();
     private:
         std::unique_ptr<Window> window;
 
@@ -61,7 +63,6 @@ class App {
         std::vector<Model> models;
 
         void updateUniformBuffer(uint32_t currentImage);
-        void drawFrame();
         
         // needs to move somewhere, unsure atm
         void copyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width, uint32_t height);
@@ -70,11 +71,7 @@ class App {
         void makeTextureImage();
 
         void makeDepthResources();        
-        void init();
         
-        void loop();
-        
-        void clean();
         
 };
 

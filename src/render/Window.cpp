@@ -1,6 +1,6 @@
 #include "Window.hpp"
 #include <iostream>
-#include "App.hpp"
+#include "Renderer.hpp"
 #include "Logger.hpp"
 
 Window::Window()
@@ -27,7 +27,7 @@ void Window::init()
 
 static void framebufferResizeCallback(GLFWwindow *win, int height, int width)
 {
-    auto app = reinterpret_cast<App *>(glfwGetWindowUserPointer(win));
+    auto app = reinterpret_cast<Renderer *>(glfwGetWindowUserPointer(win));
     app->frameResize = true;
 }
 

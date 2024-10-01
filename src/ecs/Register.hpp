@@ -1,5 +1,5 @@
 #ifndef REGISTRY_HPP
-#define REGISTRY_HPP
+# define REGISTRY_HPP
 
 #include <variant>
 #include <unordered_map>
@@ -10,6 +10,10 @@
 #include <typeinfo>
 #include <algorithm>
 
+#include "Components.hpp"
+
+#include "Logger.hpp"
+
 #define SYSTEM_UPDATE 0
 #define SYSTEM_STARTUP 1
 
@@ -19,9 +23,6 @@ class Registry
 public:
     using component_type = std::type_index;
     using component_id = uint32_t;
-
-    using system = void (*)();
-    using system_type = char;
 
     using entity = std::vector<component_id>;
     using entity_id = uint32_t;
@@ -55,19 +56,19 @@ public:
         return ids;
     }
     template <typename cp>
-    std::vector<cp> getComponents()
+    std::vector<cp*> getComponents()
     {
         std::vector<component_id> ids = getComponentIds<cp>();
-        std::vector<cp> res;
+        std::vector<cp*> res;
 
         res.reserve(ids.size());
         std::for_each(ids.begin(), ids.end(),
                     [&](component_id &id)
-                    { res.push_back(std::get<cp>(_components[id])); });
+                    { try {res.emplace_back(&std::get<cp>(_components[id]));} catch (...){} });
         return res;
     }
     template <typename cp>
-    cp getComponent(entity_id entity)
+    cp& getComponent(entity_id entity)
     {
         std::vector<component_id> ids = _entities[entity];
 
@@ -76,7 +77,7 @@ public:
             auto current = _components[id];
             try
             {
-                cp res = std::get<cp>(current);
+                cp& res = std::get<cp>(current);
                 return res;
             }
             catch (const std::exception &e)
@@ -86,49 +87,32 @@ public:
         throw std::runtime_error("doesnt exist");
     }
 
-    component_id addComponent(entity_id entity, component c)
+    template<typename cp>
+    component_id addComponent(entity_id entity, cp c)
     {
         const component_id comp_id = _components.size();
         _entities[entity].push_back(comp_id);
         _components[comp_id] = c;
-        std::pair<component_id, entity_id> tmp{comp_id, entity};
-        _registry[std::type_index(typeid(c))].push_back(tmp);
+        // std::pair<component_id, entity_id> tmp{comp_id, entity};
+        _registry[std::type_index(typeid(cp))].emplace_back(comp_id, entity);
         return comp_id;
-    }
-    void addSystem(system sys, system_type sys_type)
-    {
-        if (sys_type == SYSTEM_STARTUP)
-            startup_systems.push_back(sys);
-        else if (sys_type == SYSTEM_UPDATE)
-            update_systems.push_back(sys);
-        else
-            std::cerr << "Invalid system type\n";
-    }
-    std::vector<system> getSystem(system_type type)
-    {
-        if (type == SYSTEM_STARTUP)
-            return startup_systems;
-        else if (type == SYSTEM_UPDATE)
-            return update_systems;
-        else
-            std::cerr << "Invalid system type\n";
-        return update_systems;
     }
 
     entity_id addEntity()
     {
         const entity_id id = _entities.size();
+        std::cout << Logger::info <<"entity #" << id << " added to scene" << Logger::reset;
         _entities[id] = entity{};
         return id;
     }
 
 private:
-    std::unordered_map<component_type, std::vector<std::pair<component_id, entity_id>>> _registry;
-    std::unordered_map<component_id, component> _components;
-    std::unordered_map<entity_id, entity> _entities;
-
-    std::vector<system> startup_systems;
-    std::vector<system> update_systems;
+    std::unordered_map<component_type, std::vector<std::pair<component_id, entity_id>>> _registry{};
+    std::unordered_map<component_id, component> _components{};
+    std::unordered_map<entity_id, entity> _entities{};
 };
+
+// ADD ALL COMPONENTS HERE
+extern Registry<Transform> g_reg;
 
 #endif
