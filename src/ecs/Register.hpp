@@ -69,7 +69,7 @@ public:
         return res;
     }
     template <typename cp>
-    cp& getComponent(entity_id entity)
+    cp getComponent(entity_id entity)
     {
         std::vector<component_id> ids = _entities[entity];
 
@@ -78,7 +78,7 @@ public:
             auto current = _components[id];
             try
             {
-                cp& res = std::get<cp>(current);
+                cp res = std::get<cp>(current);
                 return res;
             }
             catch (const std::exception &e)
