@@ -2,57 +2,44 @@
 #define MATRIX_HPP
 
 #include <iostream>
+#include <array>
 #include <vector>
 #include <algorithm>
 
-template <typename t>
-struct Matrix {
-    uint32_t n;
-    uint32_t m;
+template <typename t, int n, int m>
+struct Matrix
+{
+    int columns;
+    int rows;
 
-    t* matrix;
+    std::array<t, n * m> matrix;
 
-    Matrix() = delete;
-    Matrix(uint32_t _n, uint32_t _m) : n(_n), m(_m) {
-        if (n == 0 || m == 0)
-            return ;
-        try
-        {
-            t = new t(n * m);
-        }
-        catch(std::exception const& e)
-        {
-            std::cerr << "Failed to create matrix: " << e.what() << '\n';
-        }
-    };
+    Matrix() : columns(n), rows(m) {};
 
-    const t& operator[](int idx, int idy)
+    const t &operator[](int idx, int idy)
     {
         return matrix[idx * m + idy];
     }
 
     bool isSquare()
     {
-        return n == m && n != 0;
+        return columns == rows && n != 0;
     }
-    bool sameSize(Matrix<t> const& other)
+    bool sameSize(Matrix<t> const &other)
     {
-        return other.n == n && other.m == m;
+        return other.columns == columns && other.rows == rows;
     }
 };
 
-template <typename t>
-struct Vector : public Matrix<t> {
-    Vector() = delete;
-    Vector(int _n) : Matrix(_n, 1) {};
+template <typename t, int n>
+struct Vector : public Matrix<t, 1, n>
+{
+    Vector() {};
 };
 
-template <typename t>
-Matrix<t>& add(Matrix<t>& a, Matrix<t>& b)
+template <typename t, int n, int m>
+Matrix<t, n, m> &add(Matrix<t, n, m> &a, Matrix<t, n, m> &b)
 {
-    if (a.n != b.n || a.m != b.m)
-        return Matrix(0, 0);
-
     Matrix c{a.n, a.m};
 
     for (int i = 0; i < a.n; i++)
@@ -63,19 +50,17 @@ Matrix<t>& add(Matrix<t>& a, Matrix<t>& b)
         }
     }
     return c;
-}
+};
 
-template <typename t>
-Matrix<t>& sub(Matrix<t>& a, Matrix<t>& b)
+template <typename t, int n, int m>
+Matrix<t, n, m> &sub(Matrix<t, n, m> &a, Matrix<t, n, m> &b)
 {
     return a + static_cast<t>(-1) * b;
-}
+};
 
-template <typename t>
-Matrix<t>& scl(Matrix<t>& a, t scalar)
+template <typename t, int n, int m>
+Matrix<t, n, m> &scale(Matrix<t, n, m> &a, t scalar)
 {
-    Matrix c{a.n, a.m};
-
     for (int i = 0; i < a.n; i++)
     {
         for (int j = 0; j < a.m; j++)
@@ -84,37 +69,34 @@ Matrix<t>& scl(Matrix<t>& a, t scalar)
         }
     }
     return c;
-}
+};
 
 /* not fast enough */
-template <typename t>
-Matrix<t>& linear_comb(std::vector<Matrix<t>> base, std::vector<t> coefs)
+template <typename t, int n, int m>
+Matrix<t, n, m> &linear_comb(std::vector<Matrix<t, n, m>> &const base, std::vector<t> &const coefs)
 {
-    if (std::any_of(base.begin(), base.end(), [&](Matrix<t> x){ return !base.begin()->sameSize(x)}))
-        return Matrix(0, 0);
     Matrix res{base.begin()->n, base.begin()->m};
 
     for (int i = 0; i < base.size(); i++)
     {
         res = res + base[i] * coefs[i];
     }
-
     return res;
-}
+};
 
-
-template <typename t>
-Matrix<t>& lerp(Matrix<t> a, Matrix<t> b, t lam)
+template <typename t, int n, int m>
+Matrix<t, n, m> &lerp(const Matrix<t, n, m> &a, const Matrix<t, n, m> &b, const t &lam)
 {
-    return linear_comb([a, b], [lam, 1-lam]);
-}
+    return linear_comb([ a, b ], [ lam, 1 - lam ]);
+};
 
-template <typename t>
-t dot(Vector<t> a, Vector<t> b)
+// should be valid for matrixes as well
+template <typename t, int n>
+t dot(const Vector<t, n> &a, const Vector<t, n> &b)
 {
     if (!a.sameSize(b) || a.n != 1)
         return 0;
-    
+
     t res = 0;
 
     for (int i = 0; i < a.m; i++)
@@ -123,36 +105,44 @@ t dot(Vector<t> a, Vector<t> b)
     }
 
     return res;
-} 
+};
 
-template <typename t>
-t angle_cos(Matrix<t> a, Matrix<t> b)
+// doesnt work for matrixes atm
+template <typename t, int n, int m>
+t angle_cos(const Matrix<t, n, m> &a, const Matrix<t, n, m> &b)
 {
     t res = dot(a, b);
     res /= a.length * b.length;
 
     return res;
-} 
+};
 
-template <typename t>
-Matrix<t>& operator+(Matrix<t>& a, Matrix<t>& b)
+// valid
+template <typename t, int n>
+t angle_cos(const Vector<t, n> &a, const Vector<t, n> &b)
+{
+    t res = dot(a, b);
+    res /= a.length * b.length;
+
+    return res;
+};
+
+template <typename t, int n, int m>
+Matrix<t, n, m> &operator+(const Matrix<t, n, m> &a, const Matrix<t, n, m> &b)
 {
     return add(a, b);
 }
 
-template <typename t>
-Matrix<t>& operator-(Matrix<t>& a, Matrix<t>& b)
+template <typename t, int n, int m>
+Matrix<t, n, m> &operator-(const Matrix<t, n, m> &a, const Matrix<t, n, m> &b)
 {
     return sub(a, b);
 }
 
-template <typename t>
-Matrix<t>& operator*(Matrix<t>& a, t scalar)
+template <typename t, int n, int m>
+Matrix<t, n, m> &operator*(const Matrix<t, n, m> &a, const t &scalar)
 {
     return scale(a, scalar);
-}
-
-
-
+};
 
 #endif
