@@ -10,7 +10,7 @@
 #include "Renderer.hpp"
 
 void UpdateTransform(float deltaTime);
-Registry<Transform> g_reg;
+Registry<Transform, Renderable> g_reg;
 
 int main()
 {
@@ -24,17 +24,22 @@ int main()
     try
     {
         std::cout << "\033[2J";
-        renderer.init();
         // should make a time class for all these
         uint32_t tea1 = g_reg.addEntity();
         Transform tea1_transform = {{0,-2,0}, {1,1,1}, {1,1,1}};
+        Renderable tea1_renderable = {"resources/teapot.obj"};
         g_reg.addComponent(tea1, tea1_transform);
+        g_reg.addComponent(tea1, tea1_renderable);
+
 
         uint32_t tea2 = g_reg.addEntity();
         Transform tea2_transform = {{0,2,0}, {1,1,1}, {1,1,1}};
+        Renderable tea2_renderable = {"resources/teapot.obj"};
         g_reg.addComponent(tea2, tea2_transform);
-        const auto startTime = std::chrono::high_resolution_clock::now();
+        g_reg.addComponent(tea2, tea2_renderable);
 
+        renderer.init();
+        const auto startTime = std::chrono::high_resolution_clock::now();
         std::cout << Logger::info << "Main loop" << Logger::reset;
         auto last = std::chrono::high_resolution_clock::now();
         while (!glfwWindowShouldClose(Window::win))

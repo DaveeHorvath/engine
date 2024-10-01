@@ -132,18 +132,19 @@ void RenderPipeline::recordCommandBuffer(VkCommandBuffer buffer, uint32_t image,
 	vkCmdBindDescriptorSets(buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 0, 1, &descriptorSets[currentFrame], 0, nullptr);
 
 	// needs the whole transform (for those with a model) -> call to the ecs
-	std::vector<Transform*> transforms = g_reg.getComponents<Transform>();
-	if (models.size() > transforms.size())
-		throw std::runtime_error("not enough transforms");
-	std::vector<submitTransform> submit{transforms.size()};
+	std::vector<uint32_t> entities = g_reg.getEntityIds<Renderable>(); 
+	if (models.size() != entities.size())
+		throw std::runtime_error("invalid amount of renderables");
+	std::vector<submitTransform> submit{entities.size()};
 	// very inneficient, maybe move to model later
 	for (int i = 0; i < models.size(); i++)
 	{
-		submit[i].model = glm::translate(glm::mat4(1), transforms[i]->pos);
-		submit[i].rotate = glm::rotate(glm::mat4(1), glm::radians(transforms[i]->rotation.x), glm::vec3(1,0,0));
-		submit[i].rotate = glm::rotate(submit[i].rotate, glm::radians(transforms[i]->rotation.y), glm::vec3(0,1,0));
-		submit[i].rotate = glm::rotate(submit[i].rotate, glm::radians(transforms[i]->rotation.z), glm::vec3(0,0,1));
-		submit[i].scale = glm::scale(glm::mat4(1), transforms[i]->scale);
+		Transform t = g_reg.getComponent<Transform>(entities[i]);
+		submit[i].model = glm::translate(glm::mat4(1), t.pos);
+		submit[i].rotate = glm::rotate(glm::mat4(1), glm::radians(t.rotation.x), glm::vec3(1,0,0));
+		submit[i].rotate = glm::rotate(submit[i].rotate, glm::radians(t.rotation.y), glm::vec3(0,1,0));
+		submit[i].rotate = glm::rotate(submit[i].rotate, glm::radians(t.rotation.z), glm::vec3(0,0,1));
+		submit[i].scale = glm::scale(glm::mat4(1), t.scale);
 		vkCmdPushConstants(buffer, pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(submitTransform), &submit[i]);
 		models[i].render(buffer);
 	}
