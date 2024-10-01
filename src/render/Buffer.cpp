@@ -2,7 +2,7 @@
 #include <cstring>
 #include "RenderPipeline.hpp"
 #include "Vulkan.hpp"
-#include "App.hpp"
+#include "Renderer.hpp"
 
 void Buffer::makeBuffer(VkDeviceSize tmpsize, VkBufferUsageFlags usage, VkMemoryPropertyFlags props, VkBuffer &tmpbuffer, VkDeviceMemory &tmpbufferMemory)
 {

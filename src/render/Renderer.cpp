@@ -1,4 +1,4 @@
-#include "App.hpp"
+#include "Renderer.hpp"
 #include <chrono>
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
@@ -6,22 +6,19 @@
 #include <stdexcept>
 #include "Logger.hpp"
 
-void App::updateUniformBuffer(uint32_t currentImage)
+// gets changed rn
+void Renderer::updateUniformBuffer(uint32_t currentImage)
 {
-    static auto startTime = std::chrono::high_resolution_clock::now();
-
-    auto current = std::chrono::high_resolution_clock::now();
-    float deltatime = std::chrono::duration<float, std::chrono::seconds::period>(current - startTime).count();
-
     UniformBufferObject ubo{};
-    ubo.model = glm::rotate(glm::mat4(1.0f), deltatime * glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+    ubo.model = glm::mat4(1.0f);
+    // needs abstract to camera class
     ubo.view = glm::lookAt(glm::vec3(8.0f, 8.0f, 0.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
     ubo.proj = glm::perspective(glm::radians(90.0f), Swapchain::swapchainExtent.width / (float)Swapchain::swapchainExtent.height, 0.1f, 60.0f);
     ubo.proj[1][1] *= -1;
     memcpy(uniformBuffersMapped[currentImage], &ubo, sizeof(ubo));
 }
 
-void App::drawFrame()
+void Renderer::drawFrame()
 {
     vkWaitForFences(VulkanInstance::device, 1, &Syncobjects::inFlightFences[currentFrame], VK_TRUE, UINT64_MAX);
     uint32_t image = 0;
@@ -85,7 +82,7 @@ void App::drawFrame()
     currentFrame = (currentFrame + 1) % MAX_FRAMES_IN_FLIGHT;
 }
 
-void App::makeUniformBuffers()
+void Renderer::makeUniformBuffers()
 {
     VkDeviceSize bufferSize = sizeof(UniformBufferObject);
 
@@ -102,7 +99,7 @@ void App::makeUniformBuffers()
 }
 
 // fix this
-void App::makeTextureImage()
+void Renderer::makeTextureImage()
 {
     int texWidth, texHeight, texChannels;
     stbi_uc *pixels = stbi_load("resources/swmg.jpg", &texWidth, &texHeight, &texChannels, STBI_rgb_alpha);
@@ -133,27 +130,16 @@ void App::makeTextureImage()
 }
 
 // fix this
-void App::makeDepthResources()
+void Renderer::makeDepthResources()
 {
     depth.makeImage(swapchain->swapchainExtent.width, swapchain->swapchainExtent.height, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT);
     depth.makeImageView(VK_IMAGE_ASPECT_DEPTH_BIT);
 }
 
-void App::loop()
-{
-    std::cout << Logger::info << "Main loop" << Logger::reset;
-    while (!glfwWindowShouldClose(Window::win))
-    {
-        glfwPollEvents();
-        drawFrame();
-    }
-    std::cout << Logger::info << "Terminating" << Logger::reset;
-    vkDeviceWaitIdle(VulkanInstance::device);
-}
-
 // needs refactor
-void App::clean()
+void Renderer::clean()
 {
+    vkDeviceWaitIdle(VulkanInstance::device);
     std::cout << Logger::info << "Cleanup" << Logger::reset;
 
     // for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++)
@@ -188,7 +174,7 @@ void App::clean()
     window.release();
 }
 
-void App::copyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width, uint32_t height)
+void Renderer::copyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width, uint32_t height)
 {
     VkCommandBuffer commandBuffer = RenderPipeline::beginSingleTimeCommands();
     VkBufferImageCopy region{};
@@ -210,15 +196,15 @@ void App::copyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width, uint
     RenderPipeline::endSingleTimeCommands(commandBuffer);
 }
 
-void App::run()
-{
-    init();
-    loop();
-    clean();
-}
+// void Renderer::run()
+// {
+//     init();
+//     loop();
+//     clean();
+// }
 
 // order of member variables indicated here as logs
-void App::init()
+void Renderer::init()
 {
     std::cout << Logger::info << "Engine started" << Logger::reset;
     window = std::make_unique<Window>();
