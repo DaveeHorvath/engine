@@ -65,7 +65,7 @@ int main()
 void UpdateTransform(float deltaTime)
 {
     Transform* t = g_reg.getComponents<Transform>()[0];
-    t->pos.y += 0.3 * deltaTime;
+    t->scale.y += 0.3 * deltaTime;
     Transform* t2 = g_reg.getComponents<Transform>()[1];
     t2->pos.y -= 0.3 * deltaTime;
 }
