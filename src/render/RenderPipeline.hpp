@@ -18,11 +18,6 @@ class Buffer;
 struct Transform;
 
 #include <glm/glm.hpp>
-struct submitTransform {
-	glm::mat4 model;
-	glm::mat4 rotate;
-	glm::mat4 scale;
-};
 
 class RenderPipeline {
 private:

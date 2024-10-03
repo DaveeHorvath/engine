@@ -7,9 +7,7 @@ layout(binding = 0) uniform UniformBufferObject {
 } ubo;
 
 layout(push_constant) uniform push_constant {
-    mat4 model;
-    mat4 scale;
-    mat4 rotation;
+    mat4 transform;
 }ps;
 
 layout(location = 0) in vec3 inPosition;
@@ -20,7 +18,7 @@ layout(location = 0) out vec3 fragColor;
 layout(location = 1) out vec2 fragTexCoord;
 
 void main() {
-    gl_Position = ubo.proj * ubo.view * ps.model * ps.scale * ps.rotation * ubo.model * vec4(inPosition, 1.0);
+    gl_Position = ubo.proj * ubo.view * ps.transform * ubo.model * vec4(inPosition, 1.0);
     fragColor = inColor;
     fragTexCoord = texCoord;
 }
