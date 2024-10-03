@@ -1,4 +1,4 @@
-#include "renderPipeline.hpp"
+#include "RenderPipeline.hpp"
 #include <string>
 #include <fstream>
 #include <array>
@@ -6,10 +6,38 @@
 #include "QueueFamilyIndicies.hpp"
 #include "UniformBufferObject.hpp"
 #include "Model.hpp"
-#include "buffer.hpp"
+#include "Buffer.hpp"
 #include "Vulkan.hpp"
-#include "swapchain.hpp"
-#include "image.hpp"
+#include "Swapchain.hpp"
+#include "Image.hpp"
+
+#include "Register.hpp"
+
+#include "Components.hpp"
+
+RenderPipeline::RenderPipeline(Image depth)
+{
+	makeRenderPass(depth);
+	makeDescriptorSetLayout();
+	makePipeline();
+	makeCommandPool();
+	makeCommandBuffer();
+	makeFrameBuffer(depth);
+	makeDescriptorPool();
+}
+
+RenderPipeline::~RenderPipeline()
+{
+	vkDestroyDescriptorPool(VulkanInstance::device, descriptorPool, nullptr);
+    vkDestroyDescriptorSetLayout(VulkanInstance::device, descriptorSetLayout, nullptr);
+	for (auto &buffer : swapchainFramebuffers)
+        vkDestroyFramebuffer(VulkanInstance::device, buffer, nullptr);
+	// CommandBuffers?
+	vkDestroyCommandPool(VulkanInstance::device, commandPool, nullptr);
+	vkDestroyPipeline(VulkanInstance::device, graphicsPipeline, nullptr);
+	vkDestroyPipelineLayout(VulkanInstance::device, pipelineLayout, nullptr);
+    vkDestroyRenderPass(VulkanInstance::device, renderPass, nullptr);
+}
 
 static std::vector<char> readShader(const std::string &filename)
 {
@@ -60,7 +88,7 @@ void RenderPipeline::endSingleTimeCommands(VkCommandBuffer buffer)
 	vkFreeCommandBuffers(VulkanInstance::device, commandPool, 1, &buffer);
 }
 
-void RenderPipeline::recordCommandBuffer(VkCommandBuffer buffer, uint32_t image, uint32_t currentFrame, Buffer vertexBuffer, Buffer indexBuffer, Model model)
+void RenderPipeline::recordCommandBuffer(VkCommandBuffer buffer, uint32_t image, uint32_t currentFrame, std::vector<Model> models)
 {
 	VkCommandBufferBeginInfo commandBufferBeginInfo{};
 	commandBufferBeginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
@@ -101,14 +129,26 @@ void RenderPipeline::recordCommandBuffer(VkCommandBuffer buffer, uint32_t image,
 	scissor.extent = Swapchain::swapchainExtent;
 	vkCmdSetScissor(buffer, 0, 1, &scissor);
 
-	VkBuffer vertexBuffers[] = {vertexBuffer.buffer};
-	VkDeviceSize offsets[] = {0};
-	vkCmdBindVertexBuffers(buffer, 0, 1, vertexBuffers, offsets);
-	vkCmdBindIndexBuffer(buffer, indexBuffer.buffer, 0, VK_INDEX_TYPE_UINT32);
-
 	vkCmdBindDescriptorSets(buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 0, 1, &descriptorSets[currentFrame], 0, nullptr);
-	vkCmdDrawIndexed(buffer, static_cast<uint32_t>(model.indices.size()), 1, 0, 0, 0);
 
+	// needs the whole transform (for those with a model) -> call to the ecs
+	std::vector<uint32_t> entities = g_reg.getEntityIds<Renderable>(); 
+	if (models.size() != entities.size())
+		throw std::runtime_error("invalid amount of renderables");
+	std::vector<glm::mat4> submit{entities.size()};
+	// very inneficient, maybe move to model later
+	for (int i = 0; i < models.size(); i++)
+	{
+		Transform t = g_reg.getComponent<Transform>(entities[i]);
+		submit[i] = glm::translate(glm::mat4(1), t.pos);
+		submit[i] = glm::rotate(submit[i], glm::radians(t.rotation.x), glm::vec3(1,0,0));
+		submit[i] = glm::rotate(submit[i], glm::radians(t.rotation.y), glm::vec3(0,1,0));
+		submit[i] = glm::rotate(submit[i], glm::radians(t.rotation.z), glm::vec3(0,0,1));
+		submit[i] = glm::scale(submit[i], t.scale);
+		vkCmdPushConstants(buffer, pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(glm::mat4), &submit[i]);
+		models[i].render(buffer);
+	}
+	
 	vkCmdEndRenderPass(buffer);
 	if (vkEndCommandBuffer(buffer) != VK_SUCCESS)
 		throw std::runtime_error("Failed to end commandbuffer");
@@ -138,13 +178,13 @@ void RenderPipeline::makeCommandBuffer()
 		throw std::runtime_error("Failed to allocate command buffer");
 }
 
+// needs to take obj transform as a buffer
 void RenderPipeline::makeDescriptorSetLayout()
 {
 	VkDescriptorSetLayoutBinding uboLayoutBinding{};
 	uboLayoutBinding.binding = 0;
 	uboLayoutBinding.descriptorCount = 1;
 	uboLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-
 	uboLayoutBinding.pImmutableSamplers = nullptr;
 	uboLayoutBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
 
@@ -293,8 +333,8 @@ void RenderPipeline::makeRenderPass(Image depthImage)
 
 void RenderPipeline::makePipeline()
 {
-	std::vector<char> vertexShader = readShader("shaders/vert.spv");
-	std::vector<char> fragmentShader = readShader("shaders/frag.spv");
+	std::vector<char> vertexShader = readShader("resources/shaders/vert.spv");
+	std::vector<char> fragmentShader = readShader("resources/shaders/frag.spv");
 
 	VkShaderModule vertexShaderModule = makeShaderModule(vertexShader);
 	VkShaderModule fragmentShaderModule = makeShaderModule(fragmentShader);
@@ -381,10 +421,17 @@ void RenderPipeline::makePipeline()
 	pipelineColorBlendStateCreateInfo.attachmentCount = 1;
 	pipelineColorBlendStateCreateInfo.pAttachments = &pipelineColorBlendAttachmentState;
 
+	VkPushConstantRange pushConstantRange{};
+	pushConstantRange.offset = 0;
+	pushConstantRange.size = sizeof(glm::mat4);
+	pushConstantRange.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
+
 	VkPipelineLayoutCreateInfo pipelineLayoutCreateInfo{};
 	pipelineLayoutCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
 	pipelineLayoutCreateInfo.setLayoutCount = 1;
 	pipelineLayoutCreateInfo.pSetLayouts = &descriptorSetLayout;
+	pipelineLayoutCreateInfo.pushConstantRangeCount = 1;
+	pipelineLayoutCreateInfo.pPushConstantRanges = &pushConstantRange;
 
 	if (vkCreatePipelineLayout(VulkanInstance::device, &pipelineLayoutCreateInfo, nullptr, &pipelineLayout) != VK_SUCCESS)
 		throw std::runtime_error("Failed to create pipeline layout");

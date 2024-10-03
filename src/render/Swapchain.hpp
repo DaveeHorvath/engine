@@ -20,6 +20,8 @@ class Swapchain {
     private:
         SwapChainSupportDetails findSwapChainSupportDetails();
     public:
+        Swapchain();
+        ~Swapchain();
         inline static VkSwapchainKHR swapchain;
         inline static VkExtent2D swapchainExtent;
         // needs refactor into Image class

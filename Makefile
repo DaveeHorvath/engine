@@ -1,15 +1,17 @@
-NAME=triangle
+NAME=engine
 CXX=c++
 LIBS=/home/kali/.libs
-CXXFLAGS= -std=c++17 -Ofast -DDEBUG -g -I$(LIBS)/stb
+LIBS=/home/kali/.libs
+CXXFLAGS= -std=c++17 -Ofast -DDEBUG -g -I$(LIBS)/stb -Isrc/ecs/
 LDFLAGS = -lglfw -lvulkan -ldl -lpthread -lX11 -lXxf86vm -lXrandr -lXi
 
 SRC_DIR =src/
-SRC_FILE=$(wildcard $(SRC_DIR)*.cpp)
-SRC=$(addprefix $(SRC_DIR), $(SRC_FILE))
+SRC=$(wildcard $(SRC_DIR)*/*.cpp)
+
 OBJ_DIR = obj/
 OBJ=$(addprefix $(OBJ_DIR), $(notdir $(SRC:.cpp=.o)))
-SHADER_DIR = shaders/
+
+SHADER_DIR = resources/shaders/
 SHADERS=$(addprefix $(SHADER_DIR), shader.frag shader.vert)
 SPV=$(addprefix $(SHADER_DIR), frag.spv vert.spv)
 
@@ -17,7 +19,7 @@ $(NAME): $(OBJ_DIR) $(OBJ) $(SPV)
 	$(CXX) $(CXXFLAGS) -o $(NAME) $(OBJ) $(LDFLAGS)
 
 run: $(NAME)
-	@./triangle
+	@./$(NAME)
 
 $(SHADER_DIR)%.spv: $(SHADER_DIR)shader.%
 	glslc $< -o $@
@@ -25,7 +27,7 @@ $(SHADER_DIR)%.spv: $(SHADER_DIR)shader.%
 $(OBJ_DIR):
 	mkdir -p $(OBJ_DIR)
 
-$(OBJ_DIR)%.o: $(SRC_DIR)%.cpp $(SRC_DIR)%.hpp
+$(OBJ_DIR)%.o: $(SRC_DIR)*/%.cpp
 	$(CXX) $(CXXFLAGS) -c -o $(NAME) $< -o $@ 
 
 $(OBJ_DIR)%.o: $(SRC_DIR)%.cpp
