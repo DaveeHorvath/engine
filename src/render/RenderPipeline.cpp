@@ -135,17 +135,17 @@ void RenderPipeline::recordCommandBuffer(VkCommandBuffer buffer, uint32_t image,
 	std::vector<uint32_t> entities = g_reg.getEntityIds<Renderable>(); 
 	if (models.size() != entities.size())
 		throw std::runtime_error("invalid amount of renderables");
-	std::vector<submitTransform> submit{entities.size()};
+	std::vector<glm::mat4> submit{entities.size()};
 	// very inneficient, maybe move to model later
 	for (int i = 0; i < models.size(); i++)
 	{
 		Transform t = g_reg.getComponent<Transform>(entities[i]);
-		submit[i].model = glm::translate(glm::mat4(1), t.pos);
-		submit[i].rotate = glm::rotate(glm::mat4(1), glm::radians(t.rotation.x), glm::vec3(1,0,0));
-		submit[i].rotate = glm::rotate(submit[i].rotate, glm::radians(t.rotation.y), glm::vec3(0,1,0));
-		submit[i].rotate = glm::rotate(submit[i].rotate, glm::radians(t.rotation.z), glm::vec3(0,0,1));
-		submit[i].scale = glm::scale(glm::mat4(1), t.scale);
-		vkCmdPushConstants(buffer, pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(submitTransform), &submit[i]);
+		submit[i] = glm::translate(glm::mat4(1), t.pos);
+		submit[i] = glm::rotate(submit[i], glm::radians(t.rotation.x), glm::vec3(1,0,0));
+		submit[i] = glm::rotate(submit[i], glm::radians(t.rotation.y), glm::vec3(0,1,0));
+		submit[i] = glm::rotate(submit[i], glm::radians(t.rotation.z), glm::vec3(0,0,1));
+		submit[i] = glm::scale(submit[i], t.scale);
+		vkCmdPushConstants(buffer, pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(glm::mat4), &submit[i]);
 		models[i].render(buffer);
 	}
 	
@@ -178,13 +178,13 @@ void RenderPipeline::makeCommandBuffer()
 		throw std::runtime_error("Failed to allocate command buffer");
 }
 
+// needs to take obj transform as a buffer
 void RenderPipeline::makeDescriptorSetLayout()
 {
 	VkDescriptorSetLayoutBinding uboLayoutBinding{};
 	uboLayoutBinding.binding = 0;
 	uboLayoutBinding.descriptorCount = 1;
 	uboLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-
 	uboLayoutBinding.pImmutableSamplers = nullptr;
 	uboLayoutBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
 
@@ -423,7 +423,7 @@ void RenderPipeline::makePipeline()
 
 	VkPushConstantRange pushConstantRange{};
 	pushConstantRange.offset = 0;
-	pushConstantRange.size = sizeof(submitTransform);
+	pushConstantRange.size = sizeof(glm::mat4);
 	pushConstantRange.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
 
 	VkPipelineLayoutCreateInfo pipelineLayoutCreateInfo{};
