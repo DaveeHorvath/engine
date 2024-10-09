@@ -88,7 +88,7 @@ void RenderPipeline::endSingleTimeCommands(VkCommandBuffer buffer)
 	vkFreeCommandBuffers(VulkanInstance::device, commandPool, 1, &buffer);
 }
 
-void RenderPipeline::recordCommandBuffer(VkCommandBuffer buffer, uint32_t image, uint32_t currentFrame, std::vector<Model> models)
+void RenderPipeline::recordCommandBuffer(VkCommandBuffer buffer, uint32_t image, uint32_t currentFrame, std::vector<Model>& models)
 {
 	VkCommandBufferBeginInfo commandBufferBeginInfo{};
 	commandBufferBeginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
@@ -206,7 +206,7 @@ void RenderPipeline::makeDescriptorSetLayout()
 		throw std::runtime_error("Failed to create descriptor set layout");
 }
 
-void RenderPipeline::makeDescriptorSets(std::vector<Buffer> uniformBuffers, Image textureImage)
+void RenderPipeline::makeDescriptorSets(std::vector<Buffer> uniformBuffers, std::vector<Image> textures)
 {
 	std::vector<VkDescriptorSetLayout> layouts(MAX_FRAMES_IN_FLIGHT, descriptorSetLayout);
 
@@ -227,10 +227,13 @@ void RenderPipeline::makeDescriptorSets(std::vector<Buffer> uniformBuffers, Imag
 		bufferInfo.offset = 0;
 		bufferInfo.range = sizeof(UniformBufferObject);
 
-		VkDescriptorImageInfo imageInfo{};
-		imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-		imageInfo.imageView = textureImage.imageView;
-		imageInfo.sampler = textureImage.sampler;
+		std::vector<VkDescriptorImageInfo> images{textures.size()};
+		for (int j = 0; j < textures.size(); j++)
+		{
+			images[j].imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+			images[j].imageView = textures[j].imageView;
+			images[j].sampler = textures[j].sampler;
+		}
 
 		std::array<VkWriteDescriptorSet, 2> descriptorWrites{};
 		descriptorWrites[0].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
@@ -246,8 +249,8 @@ void RenderPipeline::makeDescriptorSets(std::vector<Buffer> uniformBuffers, Imag
 		descriptorWrites[1].dstBinding = 1;
 		descriptorWrites[1].dstArrayElement = 0;
 		descriptorWrites[1].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-		descriptorWrites[1].descriptorCount = 1;
-		descriptorWrites[1].pImageInfo = &imageInfo;
+		descriptorWrites[1].descriptorCount = images.size();
+		descriptorWrites[1].pImageInfo = images.data();
 
 		vkUpdateDescriptorSets(VulkanInstance::device, descriptorWrites.size(), descriptorWrites.data(), 0, nullptr);
 	}

@@ -48,7 +48,7 @@ public:
 
     static VkCommandBuffer beginSingleTimeCommands();
     static void endSingleTimeCommands(VkCommandBuffer buffer);
-    void recordCommandBuffer(VkCommandBuffer buffer, uint32_t image, uint32_t currentFrame , std::vector<Model> models);
+    void recordCommandBuffer(VkCommandBuffer buffer, uint32_t image, uint32_t currentFrame , std::vector<Model>& models);
 
     void makeCommandPool();
     void makeCommandBuffer();
@@ -56,7 +56,7 @@ public:
     void makeFrameBuffer(Image depthImage);
 
     void makeDescriptorSetLayout();
-    void makeDescriptorSets(std::vector<Buffer> uniformBuffers, Image textureImage);
+    void makeDescriptorSets(std::vector<Buffer> uniformBuffers, std::vector<Image> textureImage);
     void makeDescriptorPool();
 
     void makeRenderPass(Image depthImage);

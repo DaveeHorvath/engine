@@ -40,7 +40,6 @@ void Renderer::drawFrame()
 
     vkResetCommandBuffer(renderpipeline->commandBuffers[currentFrame], 0);
 
-    // maybe abstract away
     renderpipeline->recordCommandBuffer(renderpipeline->commandBuffers[currentFrame], image, currentFrame, models);
 
     VkPipelineStageFlags waitStages[] = {VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT};
@@ -95,7 +94,8 @@ void Renderer::makeUniformBuffers()
         vkMapMemory(instance->device, uniformBuffers[i].bufferMemory, 0, bufferSize, 0, &uniformBuffersMapped[i]);
     }
 
-    renderpipeline->makeDescriptorSets(uniformBuffers, texture);
+    std::vector<Image> textures{texture};
+    renderpipeline->makeDescriptorSets(uniformBuffers, textures);
 }
 
 // fix this
@@ -142,29 +142,6 @@ void Renderer::clean()
     vkDeviceWaitIdle(VulkanInstance::device);
     std::cout << Logger::info << "Cleanup" << Logger::reset;
 
-    // for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++)
-    // {
-    //     vkDestroyBuffer(VulkanInstance::device, uniformBuffers[i], nullptr);
-    //     vkFreeMemory(VulkanInstance::device, uniformBuffersMemory[i], nullptr);
-    // }
-
-    // vkDestroyImageView(VulkanInstance::device, depthImageView, nullptr);
-    // vkDestroyImage(VulkanInstance::device, depthImage, nullptr);
-    // vkFreeMemory(VulkanInstance::device, depthImageMemory, nullptr);
-
-    // vkDestroySampler(VulkanInstance::device, textureSampler, nullptr);
-
-    // vkDestroyImageView(VulkanInstance::device, textureImageView, nullptr);
-
-    // vkDestroyImage(VulkanInstance::device, textureImage, nullptr);
-    // vkFreeMemory(VulkanInstance::device, textureImageMemory, nullptr);
-
-    // vkDestroyBuffer(VulkanInstance::device, vertexBuffer, nullptr);
-    // vkFreeMemory(VulkanInstance::device, vertexBufferMemory, nullptr);
-
-    // vkDestroyBuffer(VulkanInstance::device, indexBuffer, nullptr);
-    // vkFreeMemory(VulkanInstance::device, indexBufferMemory, nullptr);
-
     renderpipeline.release();
     
     syncobjects.release();
@@ -195,13 +172,6 @@ void Renderer::copyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width,
     vkCmdCopyBufferToImage(commandBuffer, buffer, image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region);
     RenderPipeline::endSingleTimeCommands(commandBuffer);
 }
-
-// void Renderer::run()
-// {
-//     init();
-//     loop();
-//     clean();
-// }
 
 // order of member variables indicated here as logs
 void Renderer::init()
