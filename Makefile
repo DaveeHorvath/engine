@@ -2,14 +2,16 @@ NAME=engine
 CXX=c++
 LIBS=/home/kali/.libs
 LIBS=/home/kali/.libs
-CXXFLAGS= -std=c++17 -Ofast -DDEBUG -g -I$(LIBS)/stb -Isrc/ecs/
+CXXFLAGS= -std=c++17 -Ofast -DDEBUG -g -I$(LIBS)/stb -Isrc/ecs/ -Isrc/render -Iimgui/
 LDFLAGS = -lglfw -lvulkan -ldl -lpthread -lX11 -lXxf86vm -lXrandr -lXi
 
 SRC_DIR =src/
 SRC=$(wildcard $(SRC_DIR)*/*.cpp)
 
+IMGUI=$(wildcard imgui/*.cpp)
+
 OBJ_DIR = obj/
-OBJ=$(addprefix $(OBJ_DIR), $(notdir $(SRC:.cpp=.o)))
+OBJ=$(addprefix $(OBJ_DIR), $(notdir $(SRC:.cpp=.o))) $(addprefix $(OBJ_DIR), $(notdir $(IMGUI:.cpp=.o)))
 
 SHADER_DIR = resources/shaders/
 SHADERS=$(addprefix $(SHADER_DIR), shader.frag shader.vert)
@@ -30,7 +32,7 @@ $(OBJ_DIR):
 $(OBJ_DIR)%.o: $(SRC_DIR)*/%.cpp
 	$(CXX) $(CXXFLAGS) -c -o $(NAME) $< -o $@ 
 
-$(OBJ_DIR)%.o: $(SRC_DIR)%.cpp
+$(OBJ_DIR)%.o: imgui/%.cpp
 	$(CXX) $(CXXFLAGS) -c -o $(NAME) $< -o $@ 
 
 clean:

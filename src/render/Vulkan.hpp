@@ -17,10 +17,10 @@ private:
     const std::vector<const char *> validationLayer {"VK_LAYER_KHRONOS_validation"};
     const std::vector<const char *> deviceExtensions = {VK_KHR_SWAPCHAIN_EXTENSION_NAME};
 
-    VkInstance instance;
 public:
     VulkanInstance();
     ~VulkanInstance();
+    inline static VkInstance instance;
     inline static VkPhysicalDevice physicalDevice;
     inline static VkDevice device;
     inline static VkSurfaceKHR surface;

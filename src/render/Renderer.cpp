@@ -40,6 +40,15 @@ void Renderer::drawFrame()
 
     vkResetCommandBuffer(renderpipeline->commandBuffers[currentFrame], 0);
 
+
+    ImGui_ImplVulkan_NewFrame();
+	ImGui_ImplGlfw_NewFrame();
+	ImGui::NewFrame();
+
+
+    //imgui commands
+    ImGui::ShowDemoWindow();
+
     // maybe abstract away
     renderpipeline->recordCommandBuffer(renderpipeline->commandBuffers[currentFrame], image, currentFrame, models);
 

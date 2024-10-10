@@ -10,6 +10,10 @@
 
 #include <vector>
 
+#include <imgui.h>
+#include <imgui_impl_glfw.h>
+#include <imgui_impl_vulkan.h>
+
 class RenderObject;
 class Image;
 class Model;
@@ -29,6 +33,7 @@ public:
     VkDescriptorSetLayout descriptorSetLayout;
     VkPipelineLayout pipelineLayout;
 
+
     inline static VkQueue graphicsQueue;
     inline static VkQueue presentQueue;
 
@@ -40,6 +45,7 @@ public:
 
     VkDescriptorPool descriptorPool;
     std::vector<VkDescriptorSet> descriptorSets;
+    VkDescriptorPool imguiPool;
 
     static VkCommandBuffer beginSingleTimeCommands();
     static void endSingleTimeCommands(VkCommandBuffer buffer);
@@ -56,6 +62,8 @@ public:
 
     void makeRenderPass(Image depthImage);
     void makePipeline();
+
+    void initImgui();
 };
 
 #endif
