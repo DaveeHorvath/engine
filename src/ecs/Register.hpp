@@ -11,8 +11,10 @@
 #include <algorithm>
 
 #include "Components.hpp"
-
 #include "Logger.hpp"
+
+#include <fstream>
+#include <sstream>
 
 #define SYSTEM_UPDATE 0
 #define SYSTEM_STARTUP 1
@@ -88,6 +90,11 @@ public:
         throw std::runtime_error("doesnt exist");
     }
 
+    std::vector<component_id> getComponentIds(entity_id entity)
+    {
+        return _entities[entity];
+    }
+
     template<typename cp>
     component_id addComponent(entity_id entity, cp c)
     {
@@ -105,6 +112,66 @@ public:
         std::cout << Logger::info <<"entity #" << id << " added to scene" << Logger::reset;
         _entities[id] = entity{};
         return id;
+    }
+
+    void loadScene()
+    {
+        entity_id current;
+        std::ifstream in{"resources/example.scene"};
+        for(std::string line; std::getline(in, line);)
+        {
+            if (line == "Entity")
+                current = addEntity();
+            if (line == "Transform")
+            {
+                std::istringstream ss{line};
+                Transform tmp;
+                ss >> tmp;
+                addComponent<Transform>(current, tmp);
+            }
+            if (line == "Renderable")
+            {
+                std::string loc;
+                std::getline(in, loc);
+                std::istringstream ss{loc};
+                Renderable tmp;
+                ss >> tmp;
+                addComponent<Renderable>(current, tmp);
+            }
+        }
+        in.close();
+    }
+
+    void saveScene()
+    {
+        std::ofstream out;
+
+        out.open("resources/example.scene", std::ios::trunc);
+
+        for(auto& entity : _entities)
+        {
+            out << "Entity\n";
+            auto components = entity.second;
+            for (auto comp : components)
+            {
+                // fix by keeping track of all the types stored and trycasting them until you find the correct one
+                try
+                {
+                    out << std::get<Transform>(_components[comp]) << "\n";
+                }
+                catch(const std::exception& e)
+                {
+                }
+                try
+                {
+                    out << std::get<Renderable>(_components[comp]) << "\n";
+                }
+                catch(const std::exception& e)
+                {
+                }
+            }
+        }
+        out.close();
     }
 
 private:

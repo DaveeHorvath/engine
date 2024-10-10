@@ -7,6 +7,7 @@
 
 void TransformWindow::show()
 {
+    // Window
     ImGui::Begin("TransformTool", &isActive);
     ImGui::Text("Transform #%d", current);
 

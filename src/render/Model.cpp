@@ -16,7 +16,7 @@ void Model::loadModel()
     std::vector<int> read_indicies;
     std::ifstream file{name};
     if (!file.is_open())
-        throw std::runtime_error("Failed to open file");
+        throw std::runtime_error("Failed to open file" + name);
     for (std::string line; std::getline(file, line);)
     {
         std::stringstream ss{line};
