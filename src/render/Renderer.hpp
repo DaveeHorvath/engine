@@ -70,9 +70,7 @@ class Renderer {
 
         void makeTextureImage();
 
-        void makeDepthResources();        
-        
-        
+        void makeDepthResources();
 };
 
 #endif
