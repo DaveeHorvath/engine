@@ -37,6 +37,9 @@ static void keyboardCallback(GLFWwindow* window, int key, int scancode, int acti
     {
         switch (key)
         {
+        case GLFW_KEY_P:
+            TransformWindow::updateTarget();
+            break;
         case GLFW_KEY_A:
             std::cout << Logger::info << "keyboard A" << Logger::reset;
             break;

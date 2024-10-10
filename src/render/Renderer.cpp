@@ -45,9 +45,10 @@ void Renderer::drawFrame()
 	ImGui_ImplGlfw_NewFrame();
 	ImGui::NewFrame();
 
-
     //imgui commands
-    ImGui::ShowDemoWindow();
+    // make your own windows
+    transformWindow.show();
+    //ImGui::ShowDemoWindow();
 
     // maybe abstract away
     renderpipeline->recordCommandBuffer(renderpipeline->commandBuffers[currentFrame], image, currentFrame, models);
@@ -243,4 +244,5 @@ void Renderer::init()
 
     /* Sync */
     syncobjects = std::make_unique<Syncobjects>();
+    transformWindow.init();
 }

@@ -32,6 +32,7 @@ inline static uint32_t findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags
 #include "Buffer.hpp"
 #include "Image.hpp"
 #include "Model.hpp"
+#include "TransformWindow.hpp"
 
 #define MAX_FRAMES_IN_FLIGHT 2
 #include <memory>
@@ -44,6 +45,8 @@ class Renderer {
         void clean();
         void drawFrame();
     private:
+        TransformWindow transformWindow;
+
         std::unique_ptr<Window> window;
 
         std::unique_ptr<VulkanInstance> instance;

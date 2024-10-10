@@ -2,7 +2,7 @@ NAME=engine
 CXX=c++
 LIBS=/home/kali/.libs
 LIBS=/home/kali/.libs
-CXXFLAGS= -std=c++17 -Ofast -DDEBUG -g -I$(LIBS)/stb -Isrc/ecs/ -Isrc/render -Iimgui/
+CXXFLAGS= -std=c++17 -Ofast -DDEBUG -g -I$(LIBS)/stb -Isrc/ecs/ -Isrc/render -Iimgui/ -Isrc/UI/
 LDFLAGS = -lglfw -lvulkan -ldl -lpthread -lX11 -lXxf86vm -lXrandr -lXi
 
 SRC_DIR =src/
