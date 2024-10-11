@@ -28,18 +28,18 @@ int main()
         // should make a time class for all these
         // scene loading
         g_reg.loadScene();
-        uint32_t tea1 = g_reg.addEntity();
-        Transform tea1_transform = {{0,-2,0}, {1,1,1}, {1,1,1}};
-        Renderable tea1_renderable = {"resources/teapot.obj"};
-        g_reg.addComponent(tea1, tea1_transform);
-        g_reg.addComponent(tea1, tea1_renderable);
+        // uint32_t tea1 = g_reg.addEntity();
+        // Transform tea1_transform = {{0,-2,0}, {1,1,1}, {1,1,1}};
+        // Renderable tea1_renderable = {"resources/teapot.obj"};
+        // g_reg.addComponent(tea1, tea1_transform);
+        // g_reg.addComponent(tea1, tea1_renderable);
 
 
-        uint32_t tea2 = g_reg.addEntity();
-        Transform tea2_transform = {{0,2,0}, {1,1,1}, {1,1,1}};
-        Renderable tea2_renderable = {"resources/teapot.obj"};
-        g_reg.addComponent(tea2, tea2_transform);
-        g_reg.addComponent(tea2, tea2_renderable);
+        // uint32_t tea2 = g_reg.addEntity();
+        // Transform tea2_transform = {{0,2,0}, {1,1,1}, {1,1,1}};
+        // Renderable tea2_renderable = {"resources/teapot.obj"};
+        // g_reg.addComponent(tea2, tea2_transform);
+        // g_reg.addComponent(tea2, tea2_renderable);
 
         renderer.init();
         const auto startTime = std::chrono::high_resolution_clock::now();
