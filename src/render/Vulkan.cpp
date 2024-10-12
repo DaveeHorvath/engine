@@ -88,7 +88,7 @@ void VulkanInstance::init()
     {
         std::vector<VkExtensionProperties> extensions(extensionCount);
         vkEnumerateInstanceExtensionProperties(nullptr, &extensionCount, extensions.data());
-        if (false)
+        if (true)
         {
             std::cout << "Availiable Extensions: \n";
             for (auto &ext : extensions)
@@ -104,8 +104,16 @@ void VulkanInstance::pickPhysicalDevice()
     vkEnumeratePhysicalDevices(instance, &deviceCount, nullptr);
     if (deviceCount == 0)
         throw std::runtime_error("No suitable device");
+    std::cout << Logger::info << "Available Device count: " << deviceCount << Logger::reset;
     std::vector<VkPhysicalDevice> physicalDevices(deviceCount);
     vkEnumeratePhysicalDevices(instance, &deviceCount, physicalDevices.data());
+
+    for (auto& d : physicalDevices)
+    {
+        VkPhysicalDeviceProperties props;
+        vkGetPhysicalDeviceProperties(d, &props);
+        std::cout << Logger::info << props.deviceName << Logger::reset;
+    }
 
     physicalDevice = physicalDevices[0];
 }
