@@ -1,6 +1,7 @@
 #include <iostream>
 #include "Logger.hpp"
 #include <chrono>
+#include <ostream>
 
 // components
 #include "Register.hpp"
@@ -25,6 +26,8 @@ int main()
     {
         std::cout << "\033[2J";
         // should make a time class for all these
+        // scene loading
+        g_reg.loadScene();
         uint32_t tea1 = g_reg.addEntity();
         Transform tea1_transform = {{0,-2,0}, {1,1,1}, {1,1,1}};
         Renderable tea1_renderable = {"resources/teapot.obj"};
@@ -52,6 +55,7 @@ int main()
             last = current;
             renderer.drawFrame();
         }
+        g_reg.saveScene();
         std::cout << Logger::info << "Terminating" << Logger::reset;
         renderer.clean();
     }
