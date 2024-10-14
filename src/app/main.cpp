@@ -27,7 +27,18 @@ int main()
         std::cout << "\033[2J";
         // should make a time class for all these
         // scene loading
-        g_reg.loadScene();
+        // g_reg.loadScene();
+
+        uint32_t first = g_reg.addEntity();
+        Transform t;
+        t.pos = {0,0,1};
+        t.scale = {1,1,1};
+        t.rotation = {0,0,0};
+        Renderable r;
+        r.model_name = "resources/teapot.obj";
+
+        g_reg.addComponent(first, t);
+        g_reg.addComponent(first, r);
 
         renderer.init();
         const auto startTime = std::chrono::high_resolution_clock::now();
@@ -43,7 +54,7 @@ int main()
             last = current;
             renderer.drawFrame();
         }
-        g_reg.saveScene();
+        // g_reg.saveScene();
         std::cout << Logger::info << "Terminating" << Logger::reset;
         renderer.clean();
     }

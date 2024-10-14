@@ -114,7 +114,6 @@ void VulkanInstance::pickPhysicalDevice()
         vkGetPhysicalDeviceProperties(d, &props);
         std::cout << Logger::info << props.deviceName << Logger::reset;
     }
-
     physicalDevice = physicalDevices[0];
 }
 

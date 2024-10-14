@@ -114,6 +114,7 @@ public:
         return id;
     }
 
+    // creates tmp variables which go out of scope immediately, need fix
     void loadScene()
     {
         entity_id current;
@@ -124,18 +125,14 @@ public:
                 current = addEntity();
             if (line == "Transform")
             {
-                std::istringstream ss{line};
                 Transform tmp;
-                ss >> tmp;
+                in >> tmp;
                 addComponent<Transform>(current, tmp);
             }
             if (line == "Renderable")
             {
-                std::string loc;
-                std::getline(in, loc);
-                std::istringstream ss{loc};
                 Renderable tmp;
-                ss >> tmp;
+                in >> tmp;
                 addComponent<Renderable>(current, tmp);
             }
         }
