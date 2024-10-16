@@ -1,6 +1,7 @@
 #include <ostream>
 #include <sstream>
 #include "Components.hpp"
+#include <iostream>
 
 std::ostream& operator<<(std::ostream& os, const glm::vec3& t)
 {
@@ -20,7 +21,7 @@ std::ostream& operator<<(std::ostream& os, const Renderable& t)
     return os;
 }
 
-std::istringstream& operator>>(std::istringstream& is, glm::vec3& t)
+std::istream& operator>>(std::istream& is, glm::vec3& t)
 {
     is >> t.x;
     is >> t.y;
@@ -28,16 +29,18 @@ std::istringstream& operator>>(std::istringstream& is, glm::vec3& t)
     return is;
 }
 
-std::istringstream& operator>>(std::istringstream& is, Transform& t)
+std::istream& operator>>(std::istream& is, Transform& t)
 {
     is >> t.pos;
     is >> t.scale;
     is >> t.rotation;
+    std::cout << t;
     return is;
 }
 
-std::istringstream& operator>>(std::istringstream& is, Renderable& t)
+std::istream& operator>>(std::istream& is, Renderable& t)
 {
     is >> t.model_name;
+    std::cout << t;
     return is;
 }

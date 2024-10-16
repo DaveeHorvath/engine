@@ -2,7 +2,7 @@ NAME=engine
 CXX=c++
 LIBS=/home/kali/.libs
 LIBS=/home/kali/.libs
-CXXFLAGS= -std=c++17 -Ofast -DDEBUG -g -I$(LIBS)/stb -Isrc/ecs/ -Isrc/render -Iimgui/ -Isrc/UI/
+CXXFLAGS= -std=c++17 -Ofast -DDEBUG -DUSE_IMGUI_API -g -I$(LIBS)/stb -Isrc/ecs/ -Isrc/render -Iimgui/ -Isrc/UI/
 LDFLAGS = -lglfw -lvulkan -ldl -lpthread -lX11 -lXxf86vm -lXrandr -lXi
 
 SRC_DIR =src/
@@ -30,10 +30,10 @@ $(OBJ_DIR):
 	mkdir -p $(OBJ_DIR)
 
 $(OBJ_DIR)%.o: $(SRC_DIR)*/%.cpp
-	$(CXX) $(CXXFLAGS) -c -o $(NAME) $< -o $@ 
+	$(CXX) $(CXXFLAGS) -c $< -o $@ 
 
 $(OBJ_DIR)%.o: imgui/%.cpp
-	$(CXX) $(CXXFLAGS) -c -o $(NAME) $< -o $@ 
+	$(CXX) $(CXXFLAGS) -c $< -o $@ 
 
 clean:
 	rm -f $(OBJ)

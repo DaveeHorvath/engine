@@ -23,6 +23,11 @@ inline static uint32_t findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags
     throw std::runtime_error("Failed to find suitable memory type");
 }
 
+struct Camera {
+    glm::vec3 pos;
+};
+
+
 #include "UniformBufferObject.hpp"
 #include "Window.hpp"
 #include "Vulkan.hpp"
@@ -44,7 +49,11 @@ class Renderer {
         void init();
         void clean();
         void drawFrame();
+        // needs to change, tmp for access
+        static inline Camera cam;
+        UniformBufferObject ubo{};
     private:
+
         TransformWindow transformWindow;
 
         std::unique_ptr<Window> window;

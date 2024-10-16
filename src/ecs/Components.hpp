@@ -20,8 +20,8 @@ std::ostream& operator<<(std::ostream& os, const glm::vec3& t);
 std::ostream& operator<<(std::ostream& os, const Transform& t);
 std::ostream& operator<<(std::ostream& os, const Renderable& t);
 
-std::istringstream& operator<<(std::istringstream& is, glm::vec3& t);
-std::istringstream& operator>>(std::istringstream& is, Transform& t);
-std::istringstream& operator>>(std::istringstream& is, Renderable& t);
+std::istream& operator>>(std::istream& is, glm::vec3& t);
+std::istream& operator>>(std::istream& is, Transform& t);
+std::istream& operator>>(std::istream& is, Renderable& t);
 
 #endif

@@ -6,10 +6,13 @@
 #include <stdexcept>
 #include "Logger.hpp"
 #include "Register.hpp"
+#include "imgui.h"
+#include "ImGuizmo.h"
+#include <glm/glm.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 void Renderer::updateUniformBuffer(uint32_t currentImage)
 {
-    UniformBufferObject ubo{};
     ubo.model = glm::mat4(1.0f);
     // needs abstract to camera class
     ubo.view = glm::lookAt(glm::vec3(8.0f, 8.0f, 0.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
@@ -44,9 +47,22 @@ void Renderer::drawFrame()
     ImGui_ImplVulkan_NewFrame();
 	ImGui_ImplGlfw_NewFrame();
 	ImGui::NewFrame();
+    ImGuizmo::BeginFrame();
+
+    ImGuizmo::SetOrthographic(false);
+    ImGuizmo::SetDrawlist(ImGui::GetForegroundDrawList());
+    ImGuizmo::SetRect(0, 0, Swapchain::swapchainExtent.width, Swapchain::swapchainExtent.height);
+
+    ubo.proj[1][1] *= -1.0f;
+    float mat[16];
+    ImGuizmo::RecomposeMatrixFromComponents(glm::value_ptr(TransformWindow::target->pos), glm::value_ptr(TransformWindow::target->rotation), glm::value_ptr(TransformWindow::target->scale), mat);
+    ImGuizmo::Manipulate(glm::value_ptr(ubo.view), glm::value_ptr(ubo.proj), ImGuizmo::OPERATION::TRANSLATE, ImGuizmo::LOCAL, mat);
+    ImGuizmo::DecomposeMatrixToComponents(mat, glm::value_ptr(TransformWindow::target->pos), glm::value_ptr(TransformWindow::target->rotation), glm::value_ptr(TransformWindow::target->scale));
+    ubo.proj[1][1] *= -1.0f;
 
     //imgui commands
     // make your own windows
+    
     transformWindow.show();
     //ImGui::ShowDemoWindow();
 
@@ -245,4 +261,6 @@ void Renderer::init()
     /* Sync */
     syncobjects = std::make_unique<Syncobjects>();
     transformWindow.init();
+
+    cam.pos = glm::vec3(8, 8, 0);
 }
