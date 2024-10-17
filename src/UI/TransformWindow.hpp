@@ -3,11 +3,13 @@
 
 #include "Components.hpp"
 #include "Register.hpp"
-
+#include "imgui.h"
+#include "ImGuizmo.h"
 class TransformWindow{
 public:
     inline static int current = 0;
     bool isActive = true;
+    inline static ImGuizmo::OPERATION op = ImGuizmo::OPERATION::TRANSLATE;
     inline static Transform* target;
     void show();
     void init();

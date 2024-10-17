@@ -15,7 +15,8 @@ void Renderer::updateUniformBuffer(uint32_t currentImage)
 {
     ubo.model = glm::mat4(1.0f);
     // needs abstract to camera class
-    ubo.view = glm::lookAt(glm::vec3(8.0f, 8.0f, 0.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+
+    ubo.view = glm::lookAt(cam.pos, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
     ubo.proj = glm::perspective(glm::radians(90.0f), Swapchain::swapchainExtent.width / (float)Swapchain::swapchainExtent.height, 0.1f, 60.0f);
     ubo.proj[1][1] *= -1;
     memcpy(uniformBuffersMapped[currentImage], &ubo, sizeof(ubo));
@@ -50,13 +51,14 @@ void Renderer::drawFrame()
     ImGuizmo::BeginFrame();
 
     ImGuizmo::SetOrthographic(false);
-    ImGuizmo::SetDrawlist(ImGui::GetForegroundDrawList());
+    ImGuizmo::SetDrawlist(ImGui::GetBackgroundDrawList());
     ImGuizmo::SetRect(0, 0, Swapchain::swapchainExtent.width, Swapchain::swapchainExtent.height);
 
     ubo.proj[1][1] *= -1.0f;
     float mat[16];
     ImGuizmo::RecomposeMatrixFromComponents(glm::value_ptr(TransformWindow::target->pos), glm::value_ptr(TransformWindow::target->rotation), glm::value_ptr(TransformWindow::target->scale), mat);
-    ImGuizmo::Manipulate(glm::value_ptr(ubo.view), glm::value_ptr(ubo.proj), ImGuizmo::OPERATION::TRANSLATE, ImGuizmo::LOCAL, mat);
+    ImGuizmo::Manipulate(glm::value_ptr(ubo.view), glm::value_ptr(ubo.proj), TransformWindow::op, ImGuizmo::LOCAL, mat);
+    ImGuizmo::DrawGrid(glm::value_ptr(ubo.view), glm::value_ptr(ubo.proj), mat, 20);
     ImGuizmo::DecomposeMatrixToComponents(mat, glm::value_ptr(TransformWindow::target->pos), glm::value_ptr(TransformWindow::target->rotation), glm::value_ptr(TransformWindow::target->scale));
     ubo.proj[1][1] *= -1.0f;
 

@@ -33,7 +33,7 @@ static void framebufferResizeCallback(GLFWwindow *win, int height, int width)
 
 static void keyboardCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
-    if (action == GLFW_PRESS)
+    if (action == GLFW_REPEAT || action == GLFW_PRESS)
     {
         switch (key)
         {
