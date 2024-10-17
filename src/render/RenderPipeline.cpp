@@ -148,7 +148,6 @@ void RenderPipeline::recordCommandBuffer(VkCommandBuffer buffer, uint32_t image,
 	renderPassBeginInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
 	renderPassBeginInfo.renderPass = renderPass;
 	renderPassBeginInfo.framebuffer = swapchainFramebuffers[image];
-
 	renderPassBeginInfo.renderArea.offset = {0, 0};
 	renderPassBeginInfo.renderArea.extent = Swapchain::swapchainExtent;
 
@@ -323,15 +322,15 @@ void RenderPipeline::makeDescriptorPool()
 
 void RenderPipeline::makeRenderPass(Image depthImage)
 {
-	VkAttachmentDescription attachmentDescription{};
-	attachmentDescription.format = Swapchain::swapchainImageFormat;
-	attachmentDescription.samples = VK_SAMPLE_COUNT_1_BIT;
-	attachmentDescription.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
-	attachmentDescription.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
-	attachmentDescription.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
-	attachmentDescription.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-	attachmentDescription.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-	attachmentDescription.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+	VkAttachmentDescription swapchainAttachmentDescription{};
+	swapchainAttachmentDescription.format = Swapchain::swapchainImageFormat;
+	swapchainAttachmentDescription.samples = VK_SAMPLE_COUNT_1_BIT;
+	swapchainAttachmentDescription.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+	swapchainAttachmentDescription.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+	swapchainAttachmentDescription.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+	swapchainAttachmentDescription.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+	swapchainAttachmentDescription.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+	swapchainAttachmentDescription.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
 
 	VkAttachmentReference attachmentReference{};
 	attachmentReference.attachment = 0;
@@ -360,13 +359,12 @@ void RenderPipeline::makeRenderPass(Image depthImage)
 	VkSubpassDependency subpassDependency{};
 	subpassDependency.srcSubpass = VK_SUBPASS_EXTERNAL;
 	subpassDependency.dstSubpass = 0;
-
 	subpassDependency.srcAccessMask = 0;
 	subpassDependency.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
 	subpassDependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
 	subpassDependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
 
-	std::array<VkAttachmentDescription, 2> attachments = {attachmentDescription, depthAttachment};
+	std::array<VkAttachmentDescription, 2> attachments = {swapchainAttachmentDescription, depthAttachment};
 
 	VkRenderPassCreateInfo renderPassCreateInfo{};
 	renderPassCreateInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;

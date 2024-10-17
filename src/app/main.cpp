@@ -32,10 +32,10 @@ int main()
         uint32_t first = g_reg.addEntity();
         Transform t;
         t.pos = {0,0,1};
-        t.scale = {1,1,1};
-        t.rotation = {0,0,0};
+        t.scale = {12,12,12};
+        t.rotation = {0,0,-180};
         Renderable r;
-        r.model_name = "resources/teapot.obj";
+        r.model_name = "resources/smooth_vase.obj";
 
         g_reg.addComponent(first, t);
         g_reg.addComponent(first, r);

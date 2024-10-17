@@ -19,6 +19,7 @@ struct Vertex
     glm::vec3 pos;
     glm::vec3 color;
     glm::vec2 texCoord;
+    glm::vec3 normal;
 
     static VkVertexInputBindingDescription getBindingDescription()
     {
@@ -62,6 +63,7 @@ public:
     Buffer indexBuffer;
     Model(std::string model);
     void loadModel();
+    void loadExtendedModel();
     void makeVertexBuffer();
     void makeIndexBuffer();
     void init();

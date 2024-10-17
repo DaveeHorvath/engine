@@ -56,15 +56,14 @@ void Renderer::drawFrame()
 
     ubo.proj[1][1] *= -1.0f;
     float mat[16];
+    float grid[16] = {1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1};
     ImGuizmo::RecomposeMatrixFromComponents(glm::value_ptr(TransformWindow::target->pos), glm::value_ptr(TransformWindow::target->rotation), glm::value_ptr(TransformWindow::target->scale), mat);
-    ImGuizmo::Manipulate(glm::value_ptr(ubo.view), glm::value_ptr(ubo.proj), TransformWindow::op, ImGuizmo::LOCAL, mat);
-    ImGuizmo::DrawGrid(glm::value_ptr(ubo.view), glm::value_ptr(ubo.proj), mat, 20);
+    ImGuizmo::Manipulate(glm::value_ptr(ubo.view), glm::value_ptr(ubo.proj), TransformWindow::op, ImGuizmo::WORLD, mat);
+    // ImGuizmo::DrawGrid(glm::value_ptr(ubo.view), glm::value_ptr(ubo.proj), grid, 20);
     ImGuizmo::DecomposeMatrixToComponents(mat, glm::value_ptr(TransformWindow::target->pos), glm::value_ptr(TransformWindow::target->rotation), glm::value_ptr(TransformWindow::target->scale));
     ubo.proj[1][1] *= -1.0f;
 
     //imgui commands
-    // make your own windows
-    
     transformWindow.show();
     //ImGui::ShowDemoWindow();
 

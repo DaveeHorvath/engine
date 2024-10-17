@@ -6,6 +6,9 @@
 #include <iostream>
 #include <string.h>
 
+#define TINYOBJLOADER_IMPLEMENTATION
+#include <tinyObjLoaded.h>
+
 #include "Vulkan.hpp"
 
 Model::Model(std::string model) : name(model) {}
@@ -56,6 +59,60 @@ void Model::loadModel()
     }
 }
 
+
+
+void Model::loadExtendedModel()
+{
+    tinyobj::attrib_t attrib;
+    std::vector<tinyobj::shape_t> shapes;
+    std::vector<tinyobj::material_t> mats;
+
+    if (!tinyobj::LoadObj(&attrib, &shapes, &mats, nullptr, nullptr, name.c_str()))
+    {
+        std::runtime_error("Failed to load Model");
+    }
+    vertices.clear();
+    indices.clear();
+
+    for(const auto& shape : shapes)
+    {
+        for (const auto& index : shape.mesh.indices)
+        {
+            Vertex v;
+            if (index.vertex_index >= 0)
+            {
+                v.pos = {
+                    attrib.vertices[3 * index.vertex_index],
+                    attrib.vertices[3 * index.vertex_index + 1],
+                    attrib.vertices[3 * index.vertex_index + 2]
+                };
+            }
+            if (index.normal_index >= 0)
+            {
+                v.normal = {
+                    attrib.vertices[3 * index.normal_index],
+                    attrib.vertices[3 * index.normal_index + 1],
+                    attrib.vertices[3 * index.normal_index + 2]
+                };
+            }
+            if (index.texcoord_index >= 0)
+            {
+                v.texCoord = {
+                    attrib.vertices[3 * index.texcoord_index],
+                    attrib.vertices[3 * index.texcoord_index + 1],
+                };
+            }
+            else
+            {
+                v.texCoord = {v.pos.x / glm::length(v.pos), -v.pos.y / glm::length(v.pos)};
+            }
+            v.color = {1,1,1};
+            vertices.push_back(v);
+            indices.push_back(indices.size());
+        }
+    }
+}
+
 void Model::makeVertexBuffer()
 {
     VkDeviceSize deviceSize = sizeof(vertices[0]) * vertices.size();
@@ -103,7 +160,7 @@ void Model::makeIndexBuffer()
 
 void Model::init()
 {
-    loadModel();
+    loadExtendedModel();
     makeVertexBuffer();
     makeIndexBuffer();
 }
