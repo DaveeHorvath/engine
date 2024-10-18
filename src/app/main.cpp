@@ -29,16 +29,29 @@ int main()
         // scene loading
         // g_reg.loadScene();
 
-        uint32_t first = g_reg.addEntity();
+        uint32_t player = g_reg.addEntity();
         Transform t;
-        t.pos = {0,0,1};
-        t.scale = {12,12,12};
-        t.rotation = {0,0,-180};
+        t.pos = {0, 0, 0};
+        t.scale = {8,8,8};
+        t.rotation = {0,0, -180};
         Renderable r;
         r.model_name = "resources/smooth_vase.obj";
+        g_reg.addComponent(player, t);
+        g_reg.addComponent(player, r);
 
-        g_reg.addComponent(first, t);
-        g_reg.addComponent(first, r);
+        for (int i = 0; i < 10; i++)
+        {
+            uint32_t objs = g_reg.addEntity();
+            Transform t;
+            t.pos = { 3 * (i % 5) - 6, 0,  3 * (i / 5)};
+            t.scale = {10,10,10};
+            t.rotation = {0,0,-180};
+            Renderable r;
+            r.model_name = "resources/smooth_vase.obj";
+
+            g_reg.addComponent(objs, t);
+            g_reg.addComponent(objs, r);
+        }
 
         renderer.init();
         const auto startTime = std::chrono::high_resolution_clock::now();
@@ -67,8 +80,12 @@ int main()
 
 void UpdateTransform(float deltaTime)
 {
-    Transform* t = g_reg.getComponents<Transform>()[0];
-    // t->scale.y += 0.3 * deltaTime;
-    Transform* t2 = g_reg.getComponents<Transform>()[1];
-    // t2->pos.y -= 0.3 * deltaTime;
+    static Transform* t = g_reg.getComponents<Transform>()[0];
+    if (!TransformWindow::isRunning)
+    {
+        t->pos.x += Window::isD ? TransformWindow::playerSpeed * deltaTime : 0;
+        t->pos.x += Window::isA ? -TransformWindow::playerSpeed * deltaTime : 0;
+        t->pos.z += Window::isW ? -TransformWindow::playerSpeed * deltaTime : 0;
+        t->pos.z += Window::isS ? TransformWindow::playerSpeed * deltaTime : 0;
+    }
 }

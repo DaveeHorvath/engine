@@ -11,6 +11,8 @@ public:
     bool isActive = true;
     inline static ImGuizmo::OPERATION op = ImGuizmo::OPERATION::TRANSLATE;
     inline static Transform* target;
+    inline static bool isRunning = false;
+    inline static float playerSpeed = 1;
     void show();
     void init();
     static void updateTarget();

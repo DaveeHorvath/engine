@@ -16,9 +16,18 @@ void Renderer::updateUniformBuffer(uint32_t currentImage)
     ubo.model = glm::mat4(1.0f);
     // needs abstract to camera class
 
-    ubo.view = glm::lookAt(cam.pos, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-    ubo.proj = glm::perspective(glm::radians(90.0f), Swapchain::swapchainExtent.width / (float)Swapchain::swapchainExtent.height, 0.1f, 60.0f);
-    ubo.proj[1][1] *= -1;
+    if (TransformWindow::isRunning)
+    {
+        ubo.view = glm::lookAt(cam.pos, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+        ubo.proj = glm::perspective(glm::radians(90.0f), Swapchain::swapchainExtent.width / (float)Swapchain::swapchainExtent.height, 0.1f, 60.0f);
+        ubo.proj[1][1] *= -1;
+    }
+    else
+    {
+        ubo.view = glm::lookAt({0,10, 10}, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+        ubo.proj = glm::perspective(glm::radians(90.0f), Swapchain::swapchainExtent.width / (float)Swapchain::swapchainExtent.height, 0.1f, 60.0f);
+        ubo.proj[1][1] *= -1;
+    }
     memcpy(uniformBuffersMapped[currentImage], &ubo, sizeof(ubo));
 }
 
@@ -48,6 +57,8 @@ void Renderer::drawFrame()
     ImGui_ImplVulkan_NewFrame();
 	ImGui_ImplGlfw_NewFrame();
 	ImGui::NewFrame();
+    if (TransformWindow::isRunning)
+    {
     ImGuizmo::BeginFrame();
 
     ImGuizmo::SetOrthographic(false);
@@ -62,6 +73,7 @@ void Renderer::drawFrame()
     // ImGuizmo::DrawGrid(glm::value_ptr(ubo.view), glm::value_ptr(ubo.proj), grid, 20);
     ImGuizmo::DecomposeMatrixToComponents(mat, glm::value_ptr(TransformWindow::target->pos), glm::value_ptr(TransformWindow::target->rotation), glm::value_ptr(TransformWindow::target->scale));
     ubo.proj[1][1] *= -1.0f;
+    }
 
     //imgui commands
     transformWindow.show();
@@ -253,7 +265,10 @@ void Renderer::init()
     for (auto& obj : r)
     {
         models.emplace_back(obj->model_name);
-        models.back().init();
+        if (obj == r[0])
+            models.back().init({1,0,0});
+        else
+            models.back().init({0,1,.2});
     }
 
     std::cout << Logger::info << "Buffer initialization" << Logger::reset;

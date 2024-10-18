@@ -26,6 +26,14 @@ void TransformWindow::show()
     if (ImGui::RadioButton("Universal", op == ImGuizmo::OPERATION::UNIVERSAL))
         op = ImGuizmo::OPERATION::UNIVERSAL;
 
+    if (ImGui::Button("Edit"))
+        isRunning = true;
+    if (ImGui::Button("Run"))
+        isRunning = false;
+
+    if (!isRunning)
+        ImGui::DragFloat("Speed", &playerSpeed, 0.2);
+
     ImGui::End();
 }
 

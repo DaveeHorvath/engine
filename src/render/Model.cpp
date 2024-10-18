@@ -61,7 +61,7 @@ void Model::loadModel()
 
 
 
-void Model::loadExtendedModel()
+void Model::loadExtendedModel(glm::vec3 color)
 {
     tinyobj::attrib_t attrib;
     std::vector<tinyobj::shape_t> shapes;
@@ -106,7 +106,7 @@ void Model::loadExtendedModel()
             {
                 v.texCoord = {v.pos.x / glm::length(v.pos), -v.pos.y / glm::length(v.pos)};
             }
-            v.color = {1,1,1};
+            v.color = color;
             vertices.push_back(v);
             indices.push_back(indices.size());
         }
@@ -158,9 +158,9 @@ void Model::makeIndexBuffer()
     vkFreeMemory(VulkanInstance::device, stagingBufferMemory, nullptr);
 }
 
-void Model::init()
+void Model::init(glm::vec3 color)
 {
-    loadExtendedModel();
+    loadExtendedModel(color);
     makeVertexBuffer();
     makeIndexBuffer();
 }
