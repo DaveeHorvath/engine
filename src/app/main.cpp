@@ -32,10 +32,10 @@ int main()
         uint32_t player = g_reg.addEntity();
         Transform t;
         t.pos = {0, 0, 0};
-        t.scale = {8,8,8};
-        t.rotation = {0,0, -180};
+        t.scale = {0.1,0.1,0.1};
+        t.rotation = {0,0,0};
         Renderable r;
-        r.model_name = "resources/smooth_vase.obj";
+        r.model_name = "resources/cat_big.obj";
         g_reg.addComponent(player, t);
         g_reg.addComponent(player, r);
 
