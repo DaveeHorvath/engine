@@ -25,6 +25,8 @@ inline static uint32_t findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags
 
 struct Camera {
     glm::vec3 pos;
+    float pitch;
+    float tilt;
 };
 
 

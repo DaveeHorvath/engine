@@ -16,6 +16,11 @@ public:
     ~Window();
     void init();
     inline static GLFWwindow *win;
+
+    inline static bool isW;
+    inline static bool isA;
+    inline static bool isS;
+    inline static bool isD;
 };
 
 #endif
