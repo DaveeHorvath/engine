@@ -8,8 +8,10 @@
 
 #define TINYOBJLOADER_IMPLEMENTATION
 #include <tinyObjLoaded.h>
+#include <stb_image.h>
 
 #include "Vulkan.hpp"
+#include "Renderer.hpp"
 
 Model::Model(std::string model) : name(model) {}
 
@@ -158,11 +160,73 @@ void Model::makeIndexBuffer()
     vkFreeMemory(VulkanInstance::device, stagingBufferMemory, nullptr);
 }
 
-void Model::init(glm::vec3 color)
+void Model::init(glm::vec3 color, RenderPipeline& renderpipeline, std::string textureName)
 {
     loadExtendedModel(color);
     makeVertexBuffer();
     makeIndexBuffer();
+    initImage(renderpipeline, textureName);
+    initDescriptorSet(renderpipeline);
+}
+
+void Model::initImage(RenderPipeline& renderpipeline, std::string textureName)
+{
+    int texWidth, texHeight, texChannels;
+    stbi_uc *pixels = stbi_load(textureName.c_str(), &texWidth, &texHeight, &texChannels, STBI_rgb_alpha);
+    VkDeviceSize imageSize = texWidth * texHeight * 4;
+
+    if (!pixels)
+        throw std::runtime_error("Failed to load texture image!");
+
+    VkBuffer stagingBuffer;
+    VkDeviceMemory stagingBufferMemory;
+
+    Buffer::makeBuffer(imageSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory);
+    void *data;
+    vkMapMemory(VulkanInstance::device, stagingBufferMemory, 0, imageSize, 0, &data);
+    memcpy(data, pixels, imageSize);
+    vkUnmapMemory(VulkanInstance::device, stagingBufferMemory);
+
+    stbi_image_free(pixels);
+
+    textureImage.makeImage(texWidth, texHeight, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT);
+
+    textureImage.transitionImageLayout(renderpipeline, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL); // specify correct layout for transfers
+    Renderer::copyBufferToImage(stagingBuffer, textureImage.image, texWidth, texHeight);
+    textureImage.transitionImageLayout(renderpipeline, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL); // specify correct layout for shaders
+
+    vkDestroyBuffer(VulkanInstance::device, stagingBuffer, nullptr);
+    vkFreeMemory(VulkanInstance::device, stagingBufferMemory, nullptr);
+    textureImage.makeImageView(VK_IMAGE_ASPECT_COLOR_BIT);
+    textureImage.makeImageSampler();
+}
+
+void Model::initDescriptorSet(RenderPipeline& renderpipeline)
+{
+    VkDescriptorSetAllocateInfo allocInfo{};
+	allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
+	allocInfo.descriptorPool = renderpipeline.descriptorPool;
+	allocInfo.descriptorSetCount = 1;
+	allocInfo.pSetLayouts = &renderpipeline.texutreDescriptorSetLayout;
+
+	if (vkAllocateDescriptorSets(VulkanInstance::device, &allocInfo, &texture) != VK_SUCCESS)
+		throw std::runtime_error("Failed to create texture descriptor set");
+
+    VkDescriptorImageInfo imageInfo{};
+	imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+	imageInfo.imageView = textureImage.imageView;
+	imageInfo.sampler = textureImage.sampler;
+
+    std::array<VkWriteDescriptorSet, 1> descriptorWrites{};
+    descriptorWrites[0].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+	descriptorWrites[0].dstSet = texture;
+	descriptorWrites[0].dstBinding = 1;
+	descriptorWrites[0].dstArrayElement = 0;
+	descriptorWrites[0].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+	descriptorWrites[0].descriptorCount = 1;
+	descriptorWrites[0].pImageInfo = &imageInfo;
+
+    vkUpdateDescriptorSets(VulkanInstance::device, descriptorWrites.size(), descriptorWrites.data(), 0, nullptr);
 }
 
 void Model::render(VkCommandBuffer commandBuffer)

@@ -235,13 +235,6 @@ void Renderer::copyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width,
     RenderPipeline::endSingleTimeCommands(commandBuffer);
 }
 
-// void Renderer::run()
-// {
-//     init();
-//     loop();
-//     clean();
-// }
-
 // order of member variables indicated here as logs
 void Renderer::init()
 {
@@ -266,9 +259,9 @@ void Renderer::init()
     {
         models.emplace_back(obj->model_name);
         if (obj == r[0])
-            models.back().init({1,0,0});
+            models.back().init({0,1,.2}, *renderpipeline, "resources/dog.jpg");
         else
-            models.back().init({0,1,.2});
+            models.back().init({1,0,0}, *renderpipeline, "resources/Cat_diffuse.jpg");
     }
 
     std::cout << Logger::info << "Buffer initialization" << Logger::reset;

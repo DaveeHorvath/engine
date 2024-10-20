@@ -32,14 +32,14 @@ int main()
         uint32_t player = g_reg.addEntity();
         Transform t;
         t.pos = {0, 0, 0};
-        t.scale = {0.1,0.1,0.1};
+        t.scale = {1,1,1};
         t.rotation = {0,0,0};
         Renderable r;
-        r.model_name = "resources/cat_big.obj";
-        g_reg.addComponent(player, t);
-        g_reg.addComponent(player, r);
+        r.model_name = "resources/12221_Cat_v1_l3.obj";
+        // g_reg.addComponent(player, t);
+        // g_reg.addComponent(player, r);
 
-        for (int i = 0; i < 10; i++)
+        for (int i = 0; i < 1; i++)
         {
             uint32_t objs = g_reg.addEntity();
             Transform t;
@@ -47,7 +47,7 @@ int main()
             t.scale = {10,10,10};
             t.rotation = {0,0,-180};
             Renderable r;
-            r.model_name = "resources/smooth_vase.obj";
+            r.model_name = "resources/quad.obj";
 
             g_reg.addComponent(objs, t);
             g_reg.addComponent(objs, r);

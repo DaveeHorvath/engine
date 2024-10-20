@@ -54,6 +54,7 @@ class Renderer {
         // needs to change, tmp for access
         static inline Camera cam;
         UniformBufferObject ubo{};
+        static void copyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width, uint32_t height);
     private:
 
         TransformWindow transformWindow;
@@ -79,7 +80,6 @@ class Renderer {
         void updateUniformBuffer(uint32_t currentImage);
         
         // needs to move somewhere, unsure atm
-        void copyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width, uint32_t height);
         void makeUniformBuffers();
 
         void makeTextureImage();

@@ -13,7 +13,7 @@
 #include <vector>
 
 #include "Buffer.hpp"
-
+#include "Image.hpp"
 struct Vertex
 {
     glm::vec3 pos;
@@ -66,13 +66,18 @@ public:
     std::vector<uint32_t> indices;
     Buffer vertexBuffer;
     Buffer indexBuffer;
+    VkDescriptorSet texture;
+    Image textureImage{VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT};
     Model(std::string model);
     void loadModel();
     void loadExtendedModel(glm::vec3 color);
     void makeVertexBuffer();
     void makeIndexBuffer();
-    void init(glm::vec3 color);
+    void initImage(RenderPipeline& renderpipeline, std::string textureName);
+    void initDescriptorSet(RenderPipeline& renderpipeline);
+    void init(glm::vec3 color, RenderPipeline& renderpipeline, std::string textureName);
     void render(VkCommandBuffer commandbuffer);
+
 };
 
 #endif

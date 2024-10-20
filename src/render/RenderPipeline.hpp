@@ -31,6 +31,7 @@ public:
     ~RenderPipeline();
     VkRenderPass renderPass;
     VkDescriptorSetLayout descriptorSetLayout;
+    VkDescriptorSetLayout texutreDescriptorSetLayout;
     VkPipelineLayout pipelineLayout;
 
 
@@ -59,6 +60,8 @@ public:
     void makeDescriptorSetLayout();
     void makeDescriptorSets(std::vector<Buffer> uniformBuffers, Image textureImage);
     void makeDescriptorPool();
+
+    void makeTextureDescriptorSetLayout();
 
     void makeRenderPass(Image depthImage);
     void makePipeline();

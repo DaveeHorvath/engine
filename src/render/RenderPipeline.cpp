@@ -66,6 +66,7 @@ RenderPipeline::RenderPipeline(Image depth)
 {
 	makeRenderPass(depth);
 	makeDescriptorSetLayout();
+	makeTextureDescriptorSetLayout();
 	makePipeline();
 	makeCommandPool();
 	makeCommandBuffer();
@@ -192,6 +193,7 @@ void RenderPipeline::recordCommandBuffer(VkCommandBuffer buffer, uint32_t image,
 		submit[i] = glm::rotate(submit[i], glm::radians(t.rotation.z), glm::vec3(0,0,1));
 		submit[i] = glm::scale(submit[i], t.scale);
 		vkCmdPushConstants(buffer, pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(glm::mat4), &submit[i]);
+		vkCmdBindDescriptorSets(buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 1, 1, &models[i].texture, 0, nullptr);
 		models[i].render(buffer);
 	}
 
@@ -225,6 +227,24 @@ void RenderPipeline::makeCommandBuffer()
 	commandBufferAllocateInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
 	if (vkAllocateCommandBuffers(VulkanInstance::device, &commandBufferAllocateInfo, commandBuffers.data()) != VK_SUCCESS)
 		throw std::runtime_error("Failed to allocate command buffer");
+}
+
+void RenderPipeline::makeTextureDescriptorSetLayout()
+{
+	VkDescriptorSetLayoutBinding samplerLayoutBinding{};
+	samplerLayoutBinding.binding = 1;
+	samplerLayoutBinding.descriptorCount = 1;
+	samplerLayoutBinding.pImmutableSamplers = nullptr;
+	samplerLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+	samplerLayoutBinding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
+
+	VkDescriptorSetLayoutCreateInfo layoutInfo{};
+	layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+	layoutInfo.bindingCount = 1;
+	layoutInfo.pBindings = &samplerLayoutBinding;
+
+	if (vkCreateDescriptorSetLayout(VulkanInstance::device, &layoutInfo, nullptr, &texutreDescriptorSetLayout) != VK_SUCCESS)
+		throw std::runtime_error("Failed to create descriptor set layout");
 }
 
 // needs to take obj transform as a buffer
@@ -308,13 +328,13 @@ void RenderPipeline::makeDescriptorPool()
 	poolSizes[0].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
 	poolSizes[0].descriptorCount = static_cast<uint32_t>(MAX_FRAMES_IN_FLIGHT);
 	poolSizes[1].type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-	poolSizes[1].descriptorCount = static_cast<uint32_t>(MAX_FRAMES_IN_FLIGHT);
+	poolSizes[1].descriptorCount = static_cast<uint32_t>(MAX_FRAMES_IN_FLIGHT) + 100;
 
 	VkDescriptorPoolCreateInfo poolInfo{};
 	poolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
 	poolInfo.poolSizeCount = static_cast<uint32_t>(poolSizes.size());
 	poolInfo.pPoolSizes = poolSizes.data();
-	poolInfo.maxSets = static_cast<uint32_t>(MAX_FRAMES_IN_FLIGHT);
+	poolInfo.maxSets = static_cast<uint32_t>(MAX_FRAMES_IN_FLIGHT) + 100;
 
 	if (vkCreateDescriptorPool(VulkanInstance::device, &poolInfo, nullptr, &descriptorPool) != VK_SUCCESS)
 		throw std::runtime_error("Failed to create descriptor pool");
@@ -474,10 +494,12 @@ void RenderPipeline::makePipeline()
 	pushConstantRange.size = sizeof(glm::mat4);
 	pushConstantRange.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
 
+	std::array<VkDescriptorSetLayout, 2> setLayouts = {descriptorSetLayout, texutreDescriptorSetLayout};
+
 	VkPipelineLayoutCreateInfo pipelineLayoutCreateInfo{};
 	pipelineLayoutCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-	pipelineLayoutCreateInfo.setLayoutCount = 1;
-	pipelineLayoutCreateInfo.pSetLayouts = &descriptorSetLayout;
+	pipelineLayoutCreateInfo.setLayoutCount = 2;
+	pipelineLayoutCreateInfo.pSetLayouts = setLayouts.data();
 	pipelineLayoutCreateInfo.pushConstantRangeCount = 1;
 	pipelineLayoutCreateInfo.pPushConstantRanges = &pushConstantRange;
 
