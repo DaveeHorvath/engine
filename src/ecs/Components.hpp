@@ -6,6 +6,7 @@
 #include <string>
 #include <ostream>
 #include <sstream>
+#include "toml.hpp"
 struct Transform {
     glm::vec3 pos;
     glm::vec3 scale;
@@ -16,12 +17,7 @@ struct Renderable {
     std::string model_name;
 };
 
-std::ostream& operator<<(std::ostream& os, const glm::vec3& t);
-std::ostream& operator<<(std::ostream& os, const Transform& t);
-std::ostream& operator<<(std::ostream& os, const Renderable& t);
-
-std::istream& operator>>(std::istream& is, glm::vec3& t);
-std::istream& operator>>(std::istream& is, Transform& t);
-std::istream& operator>>(std::istream& is, Renderable& t);
+toml::array save(const Renderable& renderable);
+toml::table save(const Transform& renderable);
 
 #endif

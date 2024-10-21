@@ -18,6 +18,7 @@
 
 #define SYSTEM_UPDATE 0
 #define SYSTEM_STARTUP 1
+#include "toml.hpp"
 
 template <typename... cmps>
 class Registry
@@ -141,34 +142,7 @@ public:
 
     void saveScene()
     {
-        std::ofstream out;
-
-        out.open("resources/example.scene", std::ios::trunc);
-
-        for(auto& entity : _entities)
-        {
-            out << "Entity\n";
-            auto components = entity.second;
-            for (auto comp : components)
-            {
-                // fix by keeping track of all the types stored and trycasting them until you find the correct one
-                try
-                {
-                    out << std::get<Transform>(_components[comp]) << "\n";
-                }
-                catch(const std::exception& e)
-                {
-                }
-                try
-                {
-                    out << std::get<Renderable>(_components[comp]) << "\n";
-                }
-                catch(const std::exception& e)
-                {
-                }
-            }
-        }
-        out.close();
+        
     }
 
 private:
