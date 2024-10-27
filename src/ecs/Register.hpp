@@ -118,26 +118,26 @@ public:
     // creates tmp variables which go out of scope immediately, need fix
     void loadScene()
     {
-        entity_id current;
-        std::ifstream in{"resources/example.scene"};
-        for(std::string line; std::getline(in, line);)
-        {
-            if (line == "Entity")
-                current = addEntity();
-            if (line == "Transform")
-            {
-                Transform tmp;
-                in >> tmp;
-                addComponent<Transform>(current, tmp);
-            }
-            if (line == "Renderable")
-            {
-                Renderable tmp;
-                in >> tmp;
-                addComponent<Renderable>(current, tmp);
-            }
-        }
-        in.close();
+        // entity_id current;
+        // std::ifstream in{"resources/example.scene"};
+        // for(std::string line; std::getline(in, line);)
+        // {
+        //     if (line == "Entity")
+        //         current = addEntity();
+        //     if (line == "Transform")
+        //     {
+        //         Transform tmp;
+        //         in >> tmp;
+        //         addComponent<Transform>(current, tmp);
+        //     }
+        //     if (line == "Renderable")
+        //     {
+        //         Renderable tmp;
+        //         in >> tmp;
+        //         addComponent<Renderable>(current, tmp);
+        //     }
+        // }
+        // in.close();
     }
 
     void saveScene()

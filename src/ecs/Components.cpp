@@ -3,48 +3,6 @@
 #include "Components.hpp"
 #include <iostream>
 
-std::ostream& operator<<(std::ostream& os, const glm::vec3& t)
-{
-    os << "vec3" << "\n" << t.x << "\n" << t.y << "\n" << t.z << "\n";
-    return os;
-}
-
-std::ostream& operator<<(std::ostream& os, const Transform& t)
-{
-    os << "Transform\n" << t.pos << t.scale << t.rotation << "\n";
-    return os;
-}
-
-std::ostream& operator<<(std::ostream& os, const Renderable& t)
-{
-    os << "Renderable\n" << t.model_name << "\n";
-    return os;
-}
-
-std::istream& operator>>(std::istream& is, glm::vec3& t)
-{
-    is >> t.x;
-    is >> t.y;
-    is >> t.z;
-    return is;
-}
-
-std::istream& operator>>(std::istream& is, Transform& t)
-{
-    is >> t.pos;
-    is >> t.scale;
-    is >> t.rotation;
-    std::cout << t;
-    return is;
-}
-
-std::istream& operator>>(std::istream& is, Renderable& t)
-{
-    is >> t.model_name;
-    std::cout << t;
-    return is;
-}
-
 toml::table& save(toml::table& location, const Renderable& renderable)
 {
     location.emplace("model_name", renderable.model_name);
@@ -69,20 +27,20 @@ toml::table& read(toml::table& location, Transform& transform)
 {
     auto pos = location.get_as<toml::array>("pos");
 
-    transform.pos.x = *pos->get_as<float>(0);
-    transform.pos.y = *pos->get_as<float>(1);
-    transform.pos.z = *pos->get_as<float>(2);
+    transform.pos.x = pos->get_as<double>(0)->value_or(0.0);
+    transform.pos.y = pos->get_as<double>(1)->value_or(0.0);
+    transform.pos.z = pos->get_as<double>(2)->value_or(0.0);
 
     auto scale = location.get_as<toml::array>("scale");
 
-    transform.scale.x = *scale->get_as<float>(0);
-    transform.scale.y = *scale->get_as<float>(1);
-    transform.scale.z = *scale->get_as<float>(2);
+    transform.scale.x = scale->get_as<double>(0)->value_or(1.0);
+    transform.scale.y = scale->get_as<double>(1)->value_or(1.0);
+    transform.scale.z = scale->get_as<double>(2)->value_or(1.0);
 
     auto rotation = location.get_as<toml::array>("rotation");
 
-    transform.rotation.x = *rotation->get_as<float>(0);
-    transform.rotation.y = *rotation->get_as<float>(1);
-    transform.rotation.z = *rotation->get_as<float>(2);
+    transform.rotation.x = rotation->get_as<double>(0)->value_or(0.0);
+    transform.rotation.y = rotation->get_as<double>(1)->value_or(0.0);
+    transform.rotation.z = rotation->get_as<double>(2)->value_or(0.0);
     return location;
 }
