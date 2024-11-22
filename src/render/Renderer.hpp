@@ -40,6 +40,7 @@ struct Camera {
 #include "Image.hpp"
 #include "Model.hpp"
 #include "TransformWindow.hpp"
+#include "HierarchyWindow.hpp"
 
 #define MAX_FRAMES_IN_FLIGHT 2
 #include <memory>
@@ -58,6 +59,7 @@ class Renderer {
     private:
 
         TransformWindow transformWindow;
+        HierarchyWindow hierarchyWindow;
 
         std::unique_ptr<Window> window;
 

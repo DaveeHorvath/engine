@@ -78,6 +78,7 @@ void Renderer::drawFrame()
 
     //imgui commands
     transformWindow.show();
+    hierarchyWindow.show();
     //ImGui::ShowDemoWindow();
 
     // maybe abstract away

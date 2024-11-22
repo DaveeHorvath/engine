@@ -12,6 +12,7 @@
 
 #include "Components.hpp"
 #include "Logger.hpp"
+#include "Tree.hpp"
 
 #include <fstream>
 #include <sstream>
@@ -112,32 +113,34 @@ public:
         const entity_id id = _entities.size();
         std::cout << Logger::info <<"entity #" << id << " added to scene" << Logger::reset;
         _entities[id] = entity{};
+        scene.children.push_back((TreeNode){.cont=id});
         return id;
     }
 
-    // creates tmp variables which go out of scope immediately, need fix
+    // TODO add hinted parent with TreeNode&
+    entity_id addEntity(const entity_id& parent)
+    {
+        const entity_id id = _entities.size();
+        std::cout << Logger::info <<"entity #" << id << " added to scene" << Logger::reset;
+        _entities[id] = entity{};
+        // really slow probably
+        TreeNode *parent_node = scene.findChild(parent);
+        if (parent_node != nullptr)
+        {
+            parent_node->children.push_back((TreeNode){.cont=id});
+            std::cout << Logger::debug << "found parent" << Logger::reset;
+        }
+        else
+        {
+            std::cout << Logger::debug << "didnt find parent" << Logger::reset;
+            scene.children.push_back((TreeNode){.cont=id});
+        }
+        return id;
+    }
+
     void loadScene()
     {
-        // entity_id current;
-        // std::ifstream in{"resources/example.scene"};
-        // for(std::string line; std::getline(in, line);)
-        // {
-        //     if (line == "Entity")
-        //         current = addEntity();
-        //     if (line == "Transform")
-        //     {
-        //         Transform tmp;
-        //         in >> tmp;
-        //         addComponent<Transform>(current, tmp);
-        //     }
-        //     if (line == "Renderable")
-        //     {
-        //         Renderable tmp;
-        //         in >> tmp;
-        //         addComponent<Renderable>(current, tmp);
-        //     }
-        // }
-        // in.close();
+
     }
 
     void saveScene()
@@ -145,6 +148,8 @@ public:
         
     }
 
+    // TODO make private and create accessors
+    TreeNode scene{};
 private:
     std::unordered_map<component_type, std::vector<std::pair<component_id, entity_id>>> _registry{};
     std::unordered_map<component_id, component> _components{};

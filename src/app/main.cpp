@@ -6,7 +6,7 @@
 // components
 #include "Register.hpp"
 #include "Components.hpp"
-
+#include "Tree.hpp"
 // systems
 #include "Renderer.hpp"
 
@@ -17,31 +17,42 @@ int main()
 {
     // systems
     Renderer renderer;
-
     // time
-    // parse scene file for registry entities
-        // Todo
+    // TODO parse scene file for registry entities
     // runtime
     try
     {
+        // TODO skip assign and just dont allow top level value like a None entity
+        g_reg.scene.cont = 2147483648;
         std::cout << "\033[2J";
         // should make a time class for all these
         // scene loading
         // g_reg.loadScene();
 
-        uint32_t player = g_reg.addEntity();
-        Transform t;
-        t.pos = {0, 0, 0};
-        t.scale = {1,1,1};
-        t.rotation = {0,0,0};
-        Renderable r;
-        r.model_name = "resources/12221_Cat_v1_l3.obj";
+        // uint32_t player = g_reg.addEntity();
+        // Transform t;
+        // t.pos = {0, 0, 0};
+        // t.scale = {1,1,1};
+        // t.rotation = {0,0,0};
+        // Renderable r;
+        // r.model_name = "resources/12221_Cat_v1_l3.obj";
         // g_reg.addComponent(player, t);
         // g_reg.addComponent(player, r);
 
-        for (int i = 0; i < 1; i++)
+        uint32_t parent = g_reg.addEntity();
+        Transform t;
+        t.pos = { 0,0,0};
+        t.scale = {5,5,5};
+        t.rotation = {0,0,-180};
+        Renderable r;
+        r.model_name = "resources/quad.obj";
+
+        g_reg.addComponent(parent, t);
+        g_reg.addComponent(parent, r);
+
+        for (int i = 0; i < 3; i++)
         {
-            uint32_t objs = g_reg.addEntity();
+            uint32_t objs = g_reg.addEntity(parent);
             Transform t;
             t.pos = { 3 * (i % 5) - 6, 0,  3 * (i / 5)};
             t.scale = {10,10,10};
