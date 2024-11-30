@@ -2,6 +2,7 @@
 #include <imgui_internal.h>
 #include <imgui.h>
 #include "Register.hpp"
+#include "TransformWindow.hpp"
 
 void HierarchyWindow::show()
 {
@@ -21,14 +22,20 @@ void HierarchyWindow::showTree(TreeNode &from)
     if (from.children.size() == 0)
     {
         if (ImGui::Selectable(std::to_string(from.cont).c_str(), ImGuiSelectableFlags_Highlight))
+        {
+            TransformWindow::updateTarget(from.cont);
             std::cout << Logger::info << "Clicked entity #" << from.cont << Logger::reset;
+        }
     }
     else
     {
         if (ImGui::TreeNode(std::to_string(from.cont).c_str()))
         {
             if (ImGui::Selectable(std::to_string(from.cont).c_str()))
+            {
+                TransformWindow::updateTarget(from.cont);
                 std::cout << Logger::info << "Clicked entity #" << from.cont << Logger::reset;
+            }
             for (auto& child : from.children)
                 showTree(child);
             ImGui::TreePop();

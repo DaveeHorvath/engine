@@ -50,3 +50,12 @@ void TransformWindow::updateTarget()
     std::cout << Logger::info << "Selecting transform #" << current << Logger::reset;
     target = ref[current];
 }
+
+void TransformWindow::updateTarget(const int& id)
+{
+    auto ref = g_reg.getComponents<Transform>();
+
+    current = id % ref.size();
+    std::cout << Logger::info << "Selecting transform #" << current << Logger::reset;
+    target = ref[current];
+}

@@ -16,6 +16,7 @@ public:
     void show();
     void init();
     static void updateTarget();
+    static void updateTarget(const int& id);
 };
 
 
