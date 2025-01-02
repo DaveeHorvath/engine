@@ -237,6 +237,22 @@ void Renderer::copyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width,
     RenderPipeline::endSingleTimeCommands(commandBuffer);
 }
 
+void Renderer::spawnCube()
+{
+    uint32_t parent = g_reg.addEntity();
+    Transform t;
+    t.pos = { 5,0,0};
+    t.scale = {2,2,2};
+    t.rotation = {0,0,-180};
+    Renderable r;
+    r.model_name = "resources/cube.obj";
+    g_reg.addComponent(parent, t);
+    g_reg.addComponent(parent, r);
+    
+    models.emplace_back(r.model_name);
+    models.back().init({0.8f,0.8f,0.8f}, *renderpipeline, "resources/unlit.jpg");
+}
+
 // order of member variables indicated here as logs
 void Renderer::init()
 {
@@ -260,10 +276,7 @@ void Renderer::init()
     for (auto& obj : r)
     {
         models.emplace_back(obj->model_name);
-        if (obj == r[0])
-            models.back().init({0,1,.2}, *renderpipeline, "resources/dog.jpg");
-        else
-            models.back().init({1,0,0}, *renderpipeline, "resources/Cat_diffuse.jpg");
+        models.back().init({0.8f,0.8f,0.8f}, *renderpipeline, "resources/unlit.jpg");
     }
 
     std::cout << Logger::info << "Buffer initialization" << Logger::reset;
@@ -271,7 +284,7 @@ void Renderer::init()
 
     /* Sync */
     syncobjects = std::make_unique<Syncobjects>();
-    transformWindow.init();
+    transformWindow.init(this);
 
     cam.pos = glm::vec3(8, 8, 0);
 }

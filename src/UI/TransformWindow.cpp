@@ -4,6 +4,7 @@
 #include <imgui.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#include "Renderer.hpp"
 
 // #include "ImGuizmo.h"
 
@@ -34,12 +35,16 @@ void TransformWindow::show()
     if (!isRunning)
         ImGui::DragFloat("Speed", &playerSpeed, 0.2);
 
+    if (ImGui::Button("spawn"))
+        renderer->spawnCube();
+
     ImGui::End();
 }
 
-void TransformWindow::init()
+void TransformWindow::init(Renderer *r)
 {
     target = g_reg.getComponents<Transform>()[current];
+    renderer = r;
 }
 
 void TransformWindow::updateTarget()

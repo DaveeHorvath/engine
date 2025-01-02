@@ -56,6 +56,7 @@ class Renderer {
         static inline Camera cam;
         UniformBufferObject ubo{};
         static void copyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width, uint32_t height);
+        void spawnCube();
     private:
 
         TransformWindow transformWindow;

@@ -21,7 +21,7 @@ void HierarchyWindow::showTree(TreeNode &from)
 {
     if (from.children.size() == 0)
     {
-        if (ImGui::Selectable(std::to_string(from.cont).c_str(), ImGuiSelectableFlags_Highlight))
+        if (ImGui::Selectable(std::to_string(from.cont).c_str()))
         {
             TransformWindow::updateTarget(from.cont);
             std::cout << Logger::info << "Clicked entity #" << from.cont << Logger::reset;
@@ -29,7 +29,8 @@ void HierarchyWindow::showTree(TreeNode &from)
     }
     else
     {
-        if (ImGui::TreeNode(std::to_string(from.cont).c_str()))
+        std::string groupname = "Group-" + std::to_string(from.cont);
+        if (ImGui::TreeNode(groupname.c_str()))
         {
             if (ImGui::Selectable(std::to_string(from.cont).c_str()))
             {
