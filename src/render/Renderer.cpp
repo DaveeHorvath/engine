@@ -14,6 +14,7 @@
 
 void Renderer::updateUniformBuffer(uint32_t currentImage)
 {
+    glm::clamp(cam.pitch, -89.5f, 89.5f);
     ubo.model = glm::mat4(1.0f);
     // needs abstract to camera class
     ubo.view = glm::lookAt(cam.pos,
@@ -57,7 +58,6 @@ void Renderer::drawFrame()
     if (TransformWindow::isRunning)
     {
     ImGuizmo::BeginFrame();
-
     ImGuizmo::SetOrthographic(false);
     ImGuizmo::SetDrawlist(ImGui::GetBackgroundDrawList());
     ImGuizmo::SetRect(0, 0, Swapchain::swapchainExtent.width, Swapchain::swapchainExtent.height);

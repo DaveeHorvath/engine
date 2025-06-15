@@ -9,6 +9,7 @@
 
 static void framebufferResizeCallback(GLFWwindow * win, int height, int width);
 static void keyboardCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
+static void mouseCallback(GLFWwindow *window, double xpos, double ypos);
 
 class Window {
 public:
@@ -21,6 +22,8 @@ public:
     inline static bool isA;
     inline static bool isS;
     inline static bool isD;
+    inline static double prevX;
+    inline static double prevY;
 };
 
 #endif

@@ -23,12 +23,27 @@ void Window::init()
     glfwSetWindowUserPointer(win, this);
     glfwSetFramebufferSizeCallback(win, framebufferResizeCallback);
     glfwSetKeyCallback(win, keyboardCallback);
+    glfwSetCursorPosCallback(win, mouseCallback);
 }
 
 static void framebufferResizeCallback(GLFWwindow *win, int height, int width)
 {
     auto app = reinterpret_cast<Renderer *>(glfwGetWindowUserPointer(win));
     app->frameResize = true;
+}
+
+static void mouseCallback(GLFWwindow *window, double xpos, double ypos)
+{
+    if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_1) == GLFW_PRESS && !ImGuizmo::IsUsingAny())
+    {
+ //       std::cout << Logger::info << ypos - Window::prevY << Logger::reset;
+ //       std::cout << Logger::info << xpos - Window::prevX << Logger::reset;
+        Renderer::cam.pitch += (ypos - Window::prevY) / HEIGHT * 90.0;
+        Renderer::cam.tilt -= (xpos - Window::prevX) / WIDTH * 160.0;
+    }
+
+    Window::prevX = xpos;
+    Window::prevY = ypos;
 }
 
 static void keyboardCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
