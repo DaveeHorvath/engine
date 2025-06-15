@@ -16,31 +16,15 @@ void Renderer::updateUniformBuffer(uint32_t currentImage)
 {
     ubo.model = glm::mat4(1.0f);
     // needs abstract to camera class
-
-    if (TransformWindow::isRunning)
-    {
-        ubo.view = glm::lookAt(cam.pos,
-            cam.pos + glm::normalize(
-                glm::vec3(
-                    cos(glm::radians(cam.tilt)) * cos(glm::radians(cam.pitch)),
-                    sin(glm::radians(cam.pitch)),
-                    sin(glm::radians(cam.tilt)) * cos(glm::radians(cam.pitch))
-                )), glm::vec3(0.0f, 1.0f, 0.0f));
-        ubo.proj = glm::perspective(glm::radians(90.0f), Swapchain::swapchainExtent.width / (float)Swapchain::swapchainExtent.height, 0.1f, 60.0f);
-        ubo.proj[1][1] *= -1;
-    }
-    else
-    {
-        ubo.view = glm::lookAt(cam.pos,
-            cam.pos + glm::normalize(
-                glm::vec3(
-                    cos(glm::radians(cam.tilt)) * cos(glm::radians(cam.pitch)),
-                    sin(glm::radians(cam.pitch)),
-                    sin(glm::radians(cam.tilt)) * cos(glm::radians(cam.pitch))
-                )), glm::vec3(0.0f, 1.0f, 0.0f));
-        ubo.proj = glm::perspective(glm::radians(90.0f), Swapchain::swapchainExtent.width / (float)Swapchain::swapchainExtent.height, 0.1f, 60.0f);
-        ubo.proj[1][1] *= -1;
-    }
+    ubo.view = glm::lookAt(cam.pos,
+        cam.pos + glm::normalize(
+            glm::vec3(
+                cos(glm::radians(cam.tilt)) * cos(glm::radians(cam.pitch)),
+                sin(glm::radians(cam.pitch)),
+                sin(glm::radians(cam.tilt)) * cos(glm::radians(cam.pitch))
+            )), glm::vec3(0.0f, 1.0f, 0.0f));
+    ubo.proj = glm::perspective(glm::radians(90.0f), Swapchain::swapchainExtent.width / (float)Swapchain::swapchainExtent.height, 0.1f, 60.0f);
+    ubo.proj[1][1] *= -1;
     memcpy(uniformBuffersMapped[currentImage], &ubo, sizeof(ubo));
 }
 
