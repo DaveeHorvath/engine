@@ -76,6 +76,7 @@ void Model::loadExtendedModel(glm::vec3 color)
     vertices.clear();
     indices.clear();
 
+    bool normalsLoaded = false;
     for(const auto& shape : shapes)
     {
         for (const auto& index : shape.mesh.indices)
@@ -96,6 +97,7 @@ void Model::loadExtendedModel(glm::vec3 color)
                     attrib.vertices[3 * index.normal_index + 1],
                     attrib.vertices[3 * index.normal_index + 2]
                 };
+                normalsLoaded = true;
             }
             if (index.texcoord_index >= 0)
             {
@@ -111,6 +113,19 @@ void Model::loadExtendedModel(glm::vec3 color)
             v.color = color;
             vertices.push_back(v);
             indices.push_back(indices.size());
+        }
+    }
+    if (!normalsLoaded)
+    {
+        glm::vec3 avg = glm::vec3();
+        for (const auto& point : vertices)
+        {
+            avg += point.pos;
+        }
+        avg /= vertices.size();
+        for (auto& point : vertices)
+        {
+            point.normal = point.pos - avg;
         }
     }
 }

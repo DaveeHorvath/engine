@@ -37,7 +37,9 @@ void TransformWindow::show()
 
     if (ImGui::Button("spawn"))
         renderer->spawnCube();
-
+    ImGui::DragFloat("pitch", &(renderer->cam.pitch), 1, -90.0f, 90.0f);
+    ImGui::DragFloat("tilt", &(renderer->cam.tilt), 1);
+    ImGui::Text("FramRate: %f", ImGui::GetIO().Framerate);
     ImGui::End();
 }
 

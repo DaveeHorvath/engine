@@ -38,8 +38,13 @@ static void mouseCallback(GLFWwindow *window, double xpos, double ypos)
     {
  //       std::cout << Logger::info << ypos - Window::prevY << Logger::reset;
  //       std::cout << Logger::info << xpos - Window::prevX << Logger::reset;
-        Renderer::cam.pitch += (ypos - Window::prevY) / HEIGHT * 90.0;
-        Renderer::cam.tilt -= (xpos - Window::prevX) / WIDTH * 160.0;
+        // resolutin agnostic version
+       Renderer::cam.pitch += glm::degrees(glm::asin((ypos - Window::prevY) / HEIGHT * 2));
+       Renderer::cam.tilt -= glm::degrees(glm::asin((xpos - Window::prevX) / WIDTH * 2));
+       if (Renderer::cam.pitch <= -90)
+           Renderer::cam.pitch = -89.99;
+       if (Renderer::cam.pitch >= 90)
+           Renderer::cam.pitch = 89.99;
     }
 
     Window::prevX = xpos;
@@ -56,40 +61,40 @@ static void keyboardCallback(GLFWwindow* window, int key, int scancode, int acti
             TransformWindow::updateTarget();
             break;
         case GLFW_KEY_A:
-            std::cout << Logger::info << "keyboard A" << Logger::reset;
+            // std::cout << Logger::info << "keyboard A" << Logger::reset;
             if (TransformWindow::isRunning)
                 Renderer::cam.pos.x -= .5;
             else
                 Window::isA = true;
             break;
         case GLFW_KEY_W:
-            std::cout << Logger::info << "keyboard W" << Logger::reset;
+            // std::cout << Logger::info << "keyboard W" << Logger::reset;
             if (TransformWindow::isRunning)
                 Renderer::cam.pos.y += .5;
             else
                 Window::isW = true;
             break;
         case GLFW_KEY_S:
-            std::cout << Logger::info << "keyboard S" << Logger::reset;
+            // std::cout << Logger::info << "keyboard S" << Logger::reset;
             if (TransformWindow::isRunning)
                 Renderer::cam.pos.y -= .5;
             else
                 Window::isS = true;
             break;
         case GLFW_KEY_D:
-            std::cout << Logger::info << "keyboard D" << Logger::reset;
+            // std::cout << Logger::info << "keyboard D" << Logger::reset;
             if (TransformWindow::isRunning)
                 Renderer::cam.pos.x += .5;
             else
                 Window::isD = true;
             break;
         case GLFW_KEY_Q:
-            std::cout << Logger::info << "keyboard Q" << Logger::reset;
+            // std::cout << Logger::info << "keyboard Q" << Logger::reset;
             if (TransformWindow::isRunning)
                 Renderer::cam.pos.z += .5;
             break;
         case GLFW_KEY_E:
-            std::cout << Logger::info << "keyboard E" << Logger::reset;
+            // std::cout << Logger::info << "keyboard E" << Logger::reset;
             if (TransformWindow::isRunning)
                 Renderer::cam.pos.z -= .5;
             break;
@@ -104,19 +109,19 @@ static void keyboardCallback(GLFWwindow* window, int key, int scancode, int acti
         switch (key)
         {
         case GLFW_KEY_A:
-            std::cout << Logger::info << "keyboard A" << Logger::reset;
+            // std::cout << Logger::info << "keyboard A" << Logger::reset;
                 Window::isA = false;
             break;
         case GLFW_KEY_W:
-            std::cout << Logger::info << "keyboard W" << Logger::reset;
+            // std::cout << Logger::info << "keyboard W" << Logger::reset;
                 Window::isW = false;
             break;
         case GLFW_KEY_S:
-            std::cout << Logger::info << "keyboard S" << Logger::reset;
+            // std::cout << Logger::info << "keyboard S" << Logger::reset;
                 Window::isS = false;
             break;
         case GLFW_KEY_D:
-            std::cout << Logger::info << "keyboard D" << Logger::reset;
+            // std::cout << Logger::info << "keyboard D" << Logger::reset;
                 Window::isD = false;
             break;
         }

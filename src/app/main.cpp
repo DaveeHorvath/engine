@@ -45,7 +45,7 @@ int main()
         t.scale = {2,2,2};
         t.rotation = {0,0,-180};
         Renderable r;
-        r.model_name = "resources/cube.obj";
+        r.model_name = "resources/teapot.obj";
 
         g_reg.addComponent(parent, t);
         g_reg.addComponent(parent, r);
